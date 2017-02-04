@@ -15,8 +15,8 @@
 
 typedef struct Char_frequence{
         char value;
-        int frequence;
-        Char_frequence(char v,int f){
+        long frequence;
+        Char_frequence(char v,long f){
             value = (char)v;
             frequence = f;
         }

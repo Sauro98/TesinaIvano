@@ -2,6 +2,7 @@
 // class constructor
 Huffman_Tree::Huffman_Tree(std::string _original_string){
      original_string = _original_string;
+     //println("ORIGINAL " + original_string);
 }
 
 // class destructor
@@ -11,7 +12,7 @@ Huffman_Tree::~Huffman_Tree()
 }
 
 std::string Huffman_Tree::encode(){
-	frequencies = get_char_frequencies();
+	 frequencies = get_char_frequencies();
      order_frequence_array();
      generate_tree();
      std::string encoded = translate_original_in_encoded();
@@ -52,14 +53,14 @@ std::string Huffman_Tree::transform_encoded_string_to_binary(std::string encoded
 //getter for the frequency of characters
 //will return an array of charachter frequencies, use frequencies_array_length to loop through it
 char_f* Huffman_Tree::get_char_frequencies(){
-    int length = original_string.length();
-    char_f* frequencies_to_return = new char_f[length];
-    char_f frequencies[length];
-    int current_length = 0;
-    for(int index = 0;index < length;index++){
+    long length = original_string.length();
+    char_f* frequencies_to_return = new char_f[300];
+    char_f frequencies[300];
+    long current_length = 0;
+    for(long index = 0;index < length;index++){
             char current_char = original_string.at(index);
             bool found = false;
-            for(int f_index = 0;f_index < current_length;f_index++){
+            for(long f_index = 0;f_index < current_length;f_index++){
                     if(frequencies[f_index].value == current_char){
                         found = true;
                         frequencies[f_index].frequence++;
@@ -125,7 +126,7 @@ void Huffman_Tree::generate_tree(){
          tree_queue.enqueue(parent);
      }while(tree_queue.get_length() + symbols_queue.get_length() > 1);
      root_node = tree_queue.dequeue();
-     char_f c_f = root_node->c_f;
+     //print_LVR_tree(root_node,"");
      return;
 }
 
@@ -200,9 +201,9 @@ void Huffman_Tree::print_LVR_tree(node_f* start,std::string prefix){
 	printint(prefix + "charachter ",start->c_f.value);
 	printintln(" frequence ",start->c_f.frequence);
 	if(start->left_child != NULL)
-		print_LVR_tree(start->left_child,prefix + "\t");
+		print_LVR_tree(start->left_child,prefix + "  ");
 	if(start->right_child != NULL)
-		print_LVR_tree(start->right_child,prefix + "\t");
+		print_LVR_tree(start->right_child,prefix + "  ");
 }
 /*println("ORDERED");
      for(int i=0;i<frequencies_array_length;i++){
