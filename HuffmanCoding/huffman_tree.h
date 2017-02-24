@@ -5,7 +5,14 @@
 #include "queue.h"
 #include <math.h>
 
-#define tree_debug_mode
+//values for debug
+//0 NO DEBUG
+//1 NORMAL DEBUG
+//2 DEEP DEBUG
+#define DEBUG 1
+#define TEST
+
+#define ASCII_CHARACHTERS_COUNT 256
 
 
 
@@ -53,6 +60,8 @@ class Huffman_Tree
         std::string get_char_value(node_f* start,char to_find);
         //actually encodes the original string
         std::string translate_original_in_encoded();
+        //orders the dictionary array for DEFLATE
+        void order_dictionary(char_d dictionary[]);
         
         //---STRING DECODING RELATED FUNCTIONS---
         std::string transform_encoded_string_to_binary(std::string encoded);

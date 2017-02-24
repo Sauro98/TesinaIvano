@@ -1,15 +1,15 @@
-# Project: HuffmanCoding
+# Project: LZ77
 # Makefile created by Dev-C++ 5.7.1
 
 CPP      = g++.exe -D__DEBUG__
 CC       = gcc.exe -D__DEBUG__
 WINDRES  = windres.exe
-OBJ      = main.o huffman_tree.o queue.o
-LINKOBJ  = main.o huffman_tree.o queue.o
+OBJ      = main.o lz77_encoder.o
+LINKOBJ  = main.o lz77_encoder.o
 LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -g3
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include/c++"
-BIN      = HuffmanCoding.exe
+BIN      = LZ77.exe
 CXXFLAGS = $(CXXINCS) -Wfatal-errors -g3
 CFLAGS   = $(INCS) -Wfatal-errors -g3
 RM       = rm.exe -f
@@ -27,8 +27,5 @@ $(BIN): $(OBJ)
 main.o: main.cpp
 	$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
 
-huffman_tree.o: huffman_tree.cpp
-	$(CPP) -c huffman_tree.cpp -o huffman_tree.o $(CXXFLAGS)
-
-queue.o: queue.cpp
-	$(CPP) -c queue.cpp -o queue.o $(CXXFLAGS)
+lz77_encoder.o: lz77_encoder.cpp
+	$(CPP) -c lz77_encoder.cpp -o lz77_encoder.o $(CXXFLAGS)

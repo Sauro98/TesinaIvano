@@ -1,7 +1,7 @@
 [Project]
-FileName=HuffmanCoding.dev
-Name=HuffmanCoding
-UnitCount=6
+FileName=LZ77.dev
+Name=LZ77
+UnitCount=4
 Type=1
 Ver=2
 ObjFiles=
@@ -18,7 +18,7 @@ Icon=
 ExeOutput=
 ObjectOutput=
 OverrideOutput=0
-OverrideOutputName=HuffmanCoding.exe
+OverrideOutputName=LZ77.exe
 HostApplication=
 Folders=
 CommandLine=
@@ -61,26 +61,6 @@ AutoIncBuildNr=0
 SyncProduct=0
 
 [Unit2]
-FileName=huffman_tree.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit3]
-FileName=huffman_tree.cpp
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=constants.h
 CompileCpp=1
 Folder=
@@ -90,8 +70,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
-FileName=queue.h
+[Unit3]
+FileName=lz77_encoder.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -100,8 +80,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit6]
-FileName=queue.cpp
+[Unit4]
+FileName=lz77_encoder.cpp
 CompileCpp=1
 Folder=
 Compile=1
