@@ -4,31 +4,19 @@
 #include <string>
 
 int main(){
-    std::string text = "";
-    std::string line;
-    std::ifstream myfile ("text.txt");
-  if (myfile.is_open())
-  {
-    while ( getline (myfile,line) )
-    {
-      text += line;
-    }
-    myfile.close();
-  }
-
-  else std::cout << "Unable to open file\n"; 
+	int lengths[256];
+    std::string text = "AAABBBCCCDDDEEEFFGGGGHHHH";
     printint("Lunghezza originale: ", text.length());
     println(" bytes");
-    //println("Testo: " + line);
     
     clock_t begin = clock();
     
     Huffman_Tree tree = Huffman_Tree(text);
-    std::string enc = tree.encode();
+    std::string enc = tree.static_tree_encoding(lengths);
     clock_t end = clock();
     
     
-    //println("ENCODED: \n" + enc);
+    println("ENCODED: \n" + enc);
     printint("\nENCODED LENGTH = ",enc.length());
     println(" bytes");
     
@@ -37,9 +25,9 @@ int main(){
     println(" secondi");
     
     
-    /*std::string dec = tree.decode(enc);
+	std::string dec = tree.static_tree_decoding(lengths,enc);
     println("\nDECODED: " + dec);
-    printintln("DECODED LENGTH = ",dec.length());*/
+    printintln("DECODED LENGTH = ",dec.length());
     println("Yay");
     system("pause");
     return 0; 

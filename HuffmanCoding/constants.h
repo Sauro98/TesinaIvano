@@ -67,4 +67,22 @@ typedef struct Char_dictionary{
 	Char_dictionary(){}
 }char_d;
 
+typedef struct Code_dictionary{
+	//the int value
+	unsigned char value;
+	//its actual code length
+	int code_length;
+	//the charachter that the code represents
+	char symbol;
+	
+	Code_dictionary(unsigned char _value,int _code_length,char _symbol){
+		value = _value;
+		code_length = _code_length;
+		symbol = _symbol;
+	}
+	
+	Code_dictionary(){
+	}
+}code_d;
+
 #endif
