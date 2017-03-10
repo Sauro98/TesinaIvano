@@ -1,12 +1,12 @@
 # TesinaIvano
 Backup for high school final project
 
-<b>General info<b>
+<b>General info</b>
 I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allow users to crypt their compressed files
 - light crypting with DES
 - heavy crypting with 3DES
 
-<b>Current status: <b>
+<b>Current status: </b>
 <ul>
   <li>Des crypter working fine</li>
   <li>Huffman coding (original style) working fine</li>
