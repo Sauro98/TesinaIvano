@@ -221,7 +221,10 @@ std::string Huffman_Tree::translate_original_in_encoded(){
 }
 
 std::string Huffman_Tree::static_tree_encoding(int* lengths){
-    char_d dictionary[frequencies_array_length];//as RFC 1951
+	frequencies = get_char_frequencies();
+    order_frequence_array();
+    generate_tree();
+    char_d dictionary[frequencies_array_length]; //as RFC 1951
 	//FIRST I GET THE ORIGINAL HUFFMAN PREFIX AND DETERMINE THE GRATER CODE LENGTH
 	int MAX_BITS = 0;	
 		
@@ -251,7 +254,10 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
 	     	}
     #endif
     //order dictionary by symbol
-    order_dictionary(dictionary);	        
+    order_dictionary(dictionary);
+	for(int i=0;i<frequencies_array_length;i++){
+		println(dictionary[i].symbol<<" "<<(int)dictionary[i].symbol);
+	}
    	//THEN I GET THE MINIMUM VALUE OF THE PREFIX FOR EACH CODE LENGTH; MORE SPECIFICATIONS AT https://tools.ietf.org/html/rfc1951
 	    //if maximum prefix length is 4 I need a array of length 5 to store the 4 bits values count
 	    MAX_BITS++;
@@ -263,6 +269,7 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
 	    for(int c_ai = 0; c_ai < ASCII_CHARACHTERS_COUNT; c_ai++){
            if(d_i < frequencies_array_length && c_ai == (int)dictionary[d_i].symbol){
 	    		int code_length = dictionary[d_i].value.length();
+	    		//println(code_length);
 				deflate_dictionary[c_ai] = code_d(0,code_length,(char)c_ai);
 				d_i++;
 	    	}else{
@@ -318,13 +325,15 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
 	    	print("\tCURRENT ASCII SYMBOL: "<<(char)c_ai<<" "<<c_ai);
 	    	#endif
     		int code_length = deflate_dictionary[c_ai].code_length;
-    		unsigned char def_code = next_code[code_length];
-    		//the next code of the current code length will be consecutive to this one as rfc 1951
-		    next_code[code_length] ++;
-		    deflate_dictionary[c_ai].value = def_code;
-    		#if DEBUG > 1
-			println("code "<<(int)def_code<<" Length "<<code_length);
-			#endif
+    		if(code_length > 0){
+	    		unsigned char def_code = next_code[code_length];
+	    		//the next code of the current code length will be consecutive to this one as rfc 1951
+			    next_code[code_length] ++;
+			    deflate_dictionary[c_ai].value = def_code;
+	    		#if DEBUG > 1
+				println("code "<<(int)def_code<<" Length "<<code_length);
+				#endif
+			}
 	    }
 	    #if DEBUG > 0
 	    println("END\n");
@@ -332,32 +341,52 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
     //END 
    
    //NOW I TRANSLATE THE ORIGINAL STRING IN A ENCODED ONE
+   		#if DEBUG > 0
+	    println("ENCODING");
+	    #endif
         std::string encoded = "";
-        char to_add = 0;
-        int bit_count = 0;
-        for(int s_i = 0; s_i<original_string.length(); s_i++){
-            char current = original_string.at(s_i);
-            unsigned char code = deflate_dictionary[current].value;
-            int length = deflate_dictionary[current].code_length;
-            while(length > 0 && bit_count < 8){
-                char bit_to_add = code << (8 - length) >> 7;
-                to_add |= (bit_to_add << (7-bit_count));
-                bit_count++;
-            }
-            if(bit_count == 7){
-                encoded += to_add;
-                bit_count = 0;
-                to_add = 0;
-            }
-            while(length > 0){
-                char bit_to_add = code << (8 - length) >> 7;
-                to_add |= (bit_to_add << (7-bit_count));
-                bit_count++;
-            }
-        }
+        
+        //the encoded string will be built up a char at a time
+		char to_add = 0;
+		//the index of the current bit to be added to to_add, most significant bit first, bit 0 values 128, bit 7 values 1
+		int  current_bit = 0;
+		for(int s_i = 0; s_i < original_string.length(); s_i ++){
+			char current_char = original_string.at(s_i);
+			//get the huffman value of the current charachter on the original string
+			code_d new_value = deflate_dictionary[current_char];
+			//the bit index of the prefix, most significant bit forst. example: if prefix is 011 then index 0 is 0, index 1 is 1 and index 2 is 1.
+			int char_bit = 0;
+			//add prefix bits one at a time until prefix end is reached or char to_add is full
+			while(current_bit < 8 && char_bit < new_value.code_length){
+				char curr = (unsigned char)(new_value.value << ( 8 - (new_value.code_length - char_bit))) >> 7;
+				curr = curr << (7 - current_bit);
+				to_add |= curr;
+				char_bit ++;
+				current_bit++;
+			}
+			if(current_bit == 8){
+				//if char to_add is full then add it to the encoded string
+				encoded += to_add;
+				to_add = 0;
+				current_bit = 0;
+				//if to_add became full before the end of the prefix was reached then proceed to loop through the remaining bits
+				while(current_bit < 8 && char_bit < new_value.code_length){
+					char curr = (unsigned char)(new_value.value << ( 8 - (new_value.code_length - char_bit))) >> 7;
+					curr = curr << (7 - current_bit);
+					to_add |= curr;
+					char_bit ++;
+					current_bit++;
+				}
+			}
+		}
+		//if the last bits were not added because they weren't 8 yet then add the incomplete char to the encoded string. This will obviusly require a length check when decoding otherwise the scrap bits will be decoded too
+		if(current_bit != 0){
+			encoded += to_add;
+		}
+		#if DEBUG > 0
+	    println("END\n");
+	    #endif
    //END
-   
-   
 	    
 	//FOR OUTPUT TESTING
 		for(int t_i = 0;t_i < ASCII_CHARACHTERS_COUNT;t_i++){
@@ -373,10 +402,16 @@ std::string Huffman_Tree::static_tree_decoding(int* lengths,std::string encoded)
     //FIRST I RECREATE THE STATIC TREE
     int MAX_BITS = 0;
     for(int l_i = 0; l_i < ASCII_CHARACHTERS_COUNT;l_i++){
-        if(lengths[l_i]> MAX_BITS++)
+        if(lengths[l_i]> MAX_BITS)
             MAX_BITS = lengths[l_i];        
     }
     MAX_BITS++;
+    
+    #if DEBUG > 0
+	    println("GENERATING CODES");
+	    println("\tMAX_BITS "<<MAX_BITS);
+	#endif
+    
     int bl_count[MAX_BITS];
     for(int i=0;i < MAX_BITS;i++){
         bl_count[i] = 0;        
@@ -384,6 +419,13 @@ std::string Huffman_Tree::static_tree_decoding(int* lengths,std::string encoded)
     for(int l_i = 0;l_i < ASCII_CHARACHTERS_COUNT;l_i++){
         bl_count[lengths[l_i]]++;
     }
+    
+    #if DEBUG > 0
+		for(int i = 1;i < MAX_BITS;i++){
+	    	println("\tbl_count["<<i<<"] = "<<bl_count[i]);
+	    }
+	#endif
+	
     int next_code[MAX_BITS];
     bl_count[0] = 0;
     int code = 0;
@@ -391,6 +433,14 @@ std::string Huffman_Tree::static_tree_decoding(int* lengths,std::string encoded)
    	    code = (code + bl_count[bits - 1]) << 1;
 	    next_code[bits] = code;
     }
+    
+    #if DEBUG > 0
+	    for(int i = 1;i < MAX_BITS;i++){
+	    	println("\tnext_code["<<i<<"] = "<<next_code[i]);
+	    }
+	    println("END\n");
+	#endif
+    
     code_d dictionary[ASCII_CHARACHTERS_COUNT];
     for(int c_i = 0;c_i < ASCII_CHARACHTERS_COUNT; c_i++){
     	char code = 0;
@@ -404,7 +454,58 @@ std::string Huffman_Tree::static_tree_decoding(int* lengths,std::string encoded)
 	    	println("CODE "<<(int)code<<" LENGTH "<<legnths[c_i]);
 	    #endif
     }
-	return "";    
+    
+    //create root to generate new tree
+    node_f* root = new node_f(NULL);
+    
+    /*
+		EXPLANATION OF THE NEXT FOR LOOP
+		
+		for every char that has a prefix 
+			loop through prefix bits and if
+				- the bit is 0 then we move to the left branch of the current node (and create it if necessary)
+				- the bit is 1 then we move to the right branch of the current node (and create it if necessary)
+				if the end of the prefix is reached then insert the symbol that the current prefix represents in the current node
+				move on to the next prefix
+			at the end of the loop we are left with a tree that will allow us to loop through the encoded string bits and decode it
+			
+	*/
+    
+    for(int c_i = 0;c_i < ASCII_CHARACHTERS_COUNT;c_i++){
+    	code_d code = dictionary[c_i];
+    	if(code.code_length > 0){
+    		node_f* current_node = root;
+    		for(int a = 0;a < code.code_length; a++){
+    			int curr = (unsigned char)(code.value << ( 8 - (code.code_length - a))) >> 7;
+    			if(curr == 0){
+    				if(current_node->left_child == NULL)
+    					current_node->left_child = new node_f(current_node);
+    				current_node = current_node->left_child;
+    			}else{
+    				if(current_node->right_child == NULL)
+    					current_node->right_child = new node_f(current_node);
+    				current_node = current_node->right_child;
+    			}
+    			if(a == code.code_length - 1)
+    				current_node->c_f = char_f(code.symbol,1);
+    		}
+    	}
+    }
+    
+    std::string decoded = "";
+	node_f* current_node = root;
+	for(int e_i = 0;e_i < encoded.length();e_i++){
+		unsigned char current = encoded.at(e_i);
+		for(int c_i=0;c_i < 8;c_i++){
+			unsigned char current_i = ((unsigned char)(current << c_i)) >> 7;
+			current_node = (current_i == 0)?current_node->left_child:current_node->right_child;
+			if(current_node->left_child == NULL && current_node->right_child == NULL){
+				decoded += current_node->c_f.value;
+				current_node = root;
+			}
+		}
+	}
+	return decoded;    
     //END
 }
 
@@ -413,7 +514,7 @@ void Huffman_Tree::print_LVR_tree(node_f* start,std::string prefix){
 	printint(prefix + "charachter ",start->c_f.value);
 	printintln(" frequence ",start->c_f.frequence);
 	if(start->left_child != NULL)
-		print_LVR_tree(start->left_child,prefix + "  ");
+		print_LVR_tree(start->left_child,prefix + "  0: ");
 	if(start->right_child != NULL)
-		print_LVR_tree(start->right_child,prefix + "  ");
+		print_LVR_tree(start->right_child,prefix + "  1: ");
 }

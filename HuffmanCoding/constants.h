@@ -48,6 +48,13 @@ typedef struct Huffman_node{
             has_char = false;
         }
         
+        Huffman_node(Huffman_node* _parent){
+        	left_child = NULL;
+        	right_child = NULL;
+        	parent = _parent;
+        	c_f = char_f('\\',0);
+        }
+        
         ~Huffman_node(){
         	free(parent);
         	free(left_child);
@@ -57,10 +64,10 @@ typedef struct Huffman_node{
 
 typedef struct Char_dictionary{
 	//the char symbol
-	char symbol;
+	unsigned char symbol;
 	//its prefix value in the tree
 	std::string value;
-	Char_dictionary(char _symbol,std::string _value){
+	Char_dictionary(unsigned char _symbol,std::string _value){
 		symbol = _symbol;
 		value = _value;
 	}

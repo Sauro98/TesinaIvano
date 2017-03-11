@@ -10,7 +10,7 @@
 //1 NORMAL DEBUG
 //2 DEEP DEBUG
 #define DEBUG 1
-#define TEST
+//#define TEST
 
 #define ASCII_CHARACHTERS_COUNT 256
 
