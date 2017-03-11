@@ -1,0 +1,43 @@
+Each block consists of two parts: a pair of Huffman code trees that describe the representation of the compressed data part, and a compressed data part. (The Huffman trees themselves are compressed using Huffman encoding.) 
+The compressed data consists of a series of elements of two types: literal bytes (of strings that have not been detected as duplicated within the previous 32K input bytes)
+, and pointers to duplicated strings, where a pointer is represented as a pair <length, backward distance>. The representation used in the "deflate" format limits distances to 32K bytes and lengths to 258 bytes, but does not limit the size of a block,
+ except for uncompressible blocks, which are limited as noted above.
+ 
+As noted above, encoded data blocks in the "deflate" format consist of sequences of symbols drawn from three conceptually distinct alphabets:
+either literal bytes, from the alphabet of byte values (0..255), or <length, backward distance> pairs, where the length is drawn from (3..258) and the distance is drawn from (1..32,768).
+In fact, the literal and length alphabets are merged into a single alphabet (0..285), where values 0..255 represent literal bytes, the value 256 indicates end-of-block, and values 257..285 represent length codes
+ (possibly in conjunction with extra bits following the symbol code) as follows:
+ 
+ 
+ 
+ is not the Deflate static code. The static literal/length codes are all 7, 8, or 9 bits, and the distance codes are all 5 bits.
+ 
+ 
+ 
+ STATIC ENCODING
+ 
+        Lit Value    Bits        Codes
+
+       ---------    ----        -----
+
+         0 - 143     8          00110000 through
+
+                                10111111
+
+       144 - 255     9          110010000 through
+
+                                111111111
+
+       256 - 279     7          0000000 through
+
+                                0010111
+
+       280 - 287     8          11000000 through
+
+                                11000111
+
+i valori letterali fino a 143 vanno su otto bits, dopo quelli da sette
+0 vale 00110000 che è 48 perciò oer ottenere il valore di 0 in verità bisogna cercare quello di 48
+
+ The 0x30 is the number of 7-bit codes in the fixed Huffman code (256 to 279). Those precede the 8-bit codes in the canonical construction of the Huffman code, 
+ so to code literals in the range 0 to 143, you add 0x30 to account for the codes that precede those. The bits are reversed per the convention noted in 3.1.1
