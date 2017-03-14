@@ -13,6 +13,13 @@
 #define printintln(x,y) std::cout<<x<<y<<std::endl
 #define printint(x,y) std::cout<<x<<y
 
+//DEBUG VALUES:
+// 0: NO DEBUG
+// 1: LIGHT DEBUG
+// 2: DEEP DEBUG
+
+#define DEBUG 0
+
 typedef struct Lz77_reference{
         //distance from prefix start in the encoded string
         int o;

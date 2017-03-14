@@ -13,12 +13,26 @@
 
 class LZ77_Encoder
 {
+	private:
+		//indice del primo elemento del look ahead buffer
+		long lh_index;
 	public:
+		std::string original;
+		
+		long original_length;
+		
 		// class constructor
-		LZ77_Encoder();
+		LZ77_Encoder(std::string _original);
 		// class destructor
 		~LZ77_Encoder();
 		
+		//returns false if the end of the string is reached, false otherwise
+		bool hasMore();
+		//returns the next element (literal or length-distance pair)
+		long* getNext(int* result_length);
+		
+		
+		//old end unfit implementation
 		lz77_r* encode(std::string original,int* encoded_length);
 		std::string decode(lz77_r* encoded,int length);
 };
