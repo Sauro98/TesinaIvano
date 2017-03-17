@@ -26,7 +26,7 @@ class Deflate_encoder
 		//static tree codes generation functions
 			//LITERALS AND LENGTHS
 			int get_static_length_code(long length);
-			int get_static_length_extra_bits(long length,int* extra_bits);
+			//int get_static_length_extra_bits(long length,int* extra_bits);
 			
 			//DISTANCES
 			int get_static_distance_code(long distance);

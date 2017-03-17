@@ -7,6 +7,7 @@ static long get_mask_for_length(int length);
 static int get_static_literal_length(int literal);
 static void print_binary_literal(unsigned int literal,int length);
 static long* construct_static_literal_and_lengths_tree();
+static int get_static_length_extra_bits(long length,int* extra_bits);
 
 static int get_static_literal_length(int literal){
 	if(literal >= 0 && literal <= 143)
@@ -122,6 +123,125 @@ static long get_mask_for_length(int length){
 			return MASK_9_BITS;
 	}
 	return 0;
+}
+
+static int get_static_length_extra_bits(long length,int* extra_bits){
+	if(length == 3){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 4){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 5){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 6){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 7){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 8){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 9){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length == 10){
+		*extra_bits = 0;
+		return 0;
+	}
+	if(length >= 11 && length <= 12){
+		*extra_bits = 1;
+		return length - 11;
+	}
+	if(length >= 13 && length <= 14){
+		*extra_bits = 1;
+		return length - 13;
+	}
+	if(length >= 15 && length <= 16){
+		*extra_bits = 1;
+		return length - 15;
+	}
+	if(length >= 17 && length <= 18){
+		*extra_bits = 1;
+		return length - 17;
+	}
+	if(length >= 19 && length <= 22){
+		*extra_bits = 2;
+		return length - 19;
+	}
+	if(length >= 23 && length <= 26){
+		*extra_bits = 2;
+		return length - 23;
+	}
+	if(length >= 27 && length <= 30){
+		*extra_bits = 2;
+		return length - 27;
+	}
+	if(length >= 31 && length <= 34){
+		*extra_bits = 2;
+		return length - 31;
+	}
+	if(length >= 35 && length <= 42){
+		*extra_bits = 3;
+		return length - 35;
+	}
+	if(length >= 43 && length <= 50){
+		*extra_bits = 3;
+		return length - 43;
+	}
+	if(length >= 51 && length <= 58){
+		*extra_bits = 3;
+		return length - 51;
+	}
+	if(length >= 59 && length <= 66){
+		*extra_bits = 3;
+		return length - 59;
+	}
+	if(length >= 67 && length <= 82){
+		*extra_bits = 4;
+		return length - 67;
+	}
+	if(length >= 83 && length <= 98){
+		*extra_bits = 4;
+		return length - 83;
+	}
+	if(length >= 99 && length <= 114){
+		*extra_bits = 4;
+		return length - 99;
+	}
+	if(length >= 115 && length <= 130){
+		*extra_bits = 4;
+		return length - 115;
+	}
+	if(length >= 131 && length <= 162){
+		*extra_bits = 5;
+		return length - 131;
+	}
+	if(length >= 163 && length <= 194){
+		*extra_bits = 5;
+		return length - 163;
+	}
+	if(length >= 195 && length <= 226){
+		*extra_bits = 5;
+		return length - 195;
+	}
+	if(length >= 227 && length <= 257){
+		*extra_bits = 5;
+		return length - 227;
+	}
+	if(length == 258){
+		*extra_bits = 0;
+		return 0;
+	}
 }
 
 #endif

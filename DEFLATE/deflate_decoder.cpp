@@ -84,6 +84,15 @@ std::string Deflate_decoder::decode(){
 					println("LITERAL - "<<(char)decoded_value);
 				}else if(decoded_value > 256){
 					println("LEN-DIS - not implemented");
+					int length = get_length_from_code(decoded_value);
+					int e_b = 0;
+					get_static_length_extra_bits(length,&e_b);
+					int extra_bits = read_bits(original,&current_byte,&current_bit,e_b);
+					length += extra_bits;
+					println("LENGTH - "<<length);
+					
+					//TODO (#1#): NOW GET DISTANCE
+		
 				}
 			}while(decoded_value != END_CODE);
 			
@@ -108,6 +117,70 @@ int Deflate_decoder::get_next_static_value(std::string feed,long*current_char,in
 	int value = curr_node->value;
 	//println("value "<<value<<" "<<(char)value);
 	return value;
+}
+
+int Deflate_decoder::get_length_from_code(int code){
+	switch(code){
+		case 257:
+			return 3;
+		case 258:
+			return 4;
+		case 259:
+			return 5;
+		case 260:
+			return 6;
+		case 261:
+			return 7;
+		case 262:
+			return 8;
+		case 263:
+			return 9;
+		case 264:
+			return 10;
+		case 265:
+			return 11;
+		case 266:
+			return 13;
+		case 267:
+			return 15;
+		case 268:
+			return 17;
+		case 269:
+			return 19;
+		case 270:
+			return 23;
+		case 271:
+			return 27;
+		case 272:
+			return 31;
+		case 273:
+			return 35;
+		case 274:
+			return 43;
+		case 275:
+			return 51;
+		case 276:
+			return 59;
+		case 277:
+			return 67;
+		case 278:
+			return 83;
+		case 279:
+			return 99;
+		case 280:
+			return 115;
+		case 281:
+			return 131;
+		case 282:
+			return 163;
+		case 283:
+			return 195;
+		case 284:
+			return 227;
+		case 285:
+			return 258;	
+	}
+	return 0;
 }
 
 unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int* current_bit,int bits_count){
