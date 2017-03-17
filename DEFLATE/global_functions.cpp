@@ -3,6 +3,11 @@
 
 #include "constants.h"
 
+static long get_mask_for_length(int length);
+static int get_static_literal_length(int literal);
+static void print_binary_literal(unsigned int literal,int length);
+static long* construct_static_literal_and_lengths_tree();
+
 static int get_static_literal_length(int literal){
 	if(literal >= 0 && literal <= 143)
 		return 8;
@@ -14,6 +19,15 @@ static int get_static_literal_length(int literal){
 		return 8;
 	else 
 		return 0;
+}
+
+static void print_binary_literal(unsigned int literal,int length){
+	int mask = get_mask_for_length(length);
+	for(int a = 0;a < length;a++){
+		int current = ((literal <<  a) & mask) >> (length - 1);
+		print(current);
+	}
+	println("");
 }
 
 static long* construct_static_literal_and_lengths_tree(){
@@ -54,12 +68,13 @@ static long* construct_static_literal_and_lengths_tree(){
     	next_code[bits] = code;
     }
     
-    for(int a = 1; a < MAX_BITS; a++){
+    /*for(int a = 1; a < MAX_BITS; a++){
 		println("NEXT_CODE["<<a<<"]: "<<next_code[a]);
-	}
+	}*/
     
     //IT SOMEHOW TURNS TO 1024 AT THIS POINT I HAVE NO CLUE WHY
     lengths[0] = 8;
+    
     #if DEBUG > 1
 		println("\tEND");
 	#endif
@@ -72,6 +87,10 @@ static long* construct_static_literal_and_lengths_tree(){
     	int length = lengths[c_i];
     	codes[c_i] = next_code[length];
     	next_code[length]++;
+    	if(c_i == 101 || c_i == 277 || c_i == 68){
+    	print("CHAR: "<<c_i<<" CODE ");
+    	print_binary_literal((unsigned int)codes[c_i],(unsigned int)lengths[c_i]);
+        }
     }
     #if DEBUG > 1
 		println("\tEND");

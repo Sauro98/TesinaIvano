@@ -18,7 +18,7 @@ class Deflate_encoder
 		unsigned int encode_static_literal(int literal,int* literal_length);
 		
 		
-		void print_binary_literal(unsigned int literal,int length);
+		//void print_binary_literal(unsigned int literal,int length);
 		void print_reversed_binary_literal(int literal,int length);
 		
 		void add_code_to_string(long code,int length,unsigned char* current_to_add,int* current_to_add_bit,std::string* compressed);

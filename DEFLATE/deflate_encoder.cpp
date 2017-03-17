@@ -23,7 +23,7 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 	
 	std::string compressed = "";
 	
-	unsigned char current_to_add = 96;//011
+	unsigned char current_to_add = 3;//011
 	int* current_bit = new int;
 	*current_bit = 3;
 	#if DEBUG > 0
@@ -96,6 +96,11 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 	if(*current_bit != 0)
 		compressed += current_to_add;
 	
+	
+	//DELETE THIS!!!!!
+	//compressed[0] = 99;
+	//compressed[1] = 171;
+	
 	#if DEBUG > 0
 		println("END");
 	#endif
@@ -120,7 +125,9 @@ unsigned int Deflate_encoder::encode_static_literal(int literal,int* literal_len
 		print_binary_literal(literal_code,*literal_length);
 	#endif
 	
-	int reversed = 0;
+	//FACCIO IL ROVESCIAMENTO QUANDO LO SCRIVO NEI BIT,
+	
+	/*int reversed = 0;
 	for(int a = 0;a < *literal_length;a++){
 			int left_shifted = literal_code <<  (*literal_length - 1 - a);
 			int masked = left_shifted & mask;
@@ -131,18 +138,8 @@ unsigned int Deflate_encoder::encode_static_literal(int literal,int* literal_len
 	#if DEBUG > 1
 		print("\tREVERSED : "<<reversed<<" BINARY: ");
 		print_binary_literal(reversed,*literal_length);
-	#endif
-	
-	return reversed;
-}
-
-void Deflate_encoder::print_binary_literal(unsigned int literal,int length){
-	int mask = get_mask_for_length(length);
-	for(int a = 0;a < length;a++){
-		int current = ((literal <<  a) & mask) >> (length - 1);
-		print(current);
-	}
-	println("");
+	#endif*/
+	return literal_code;
 }
 
 void Deflate_encoder::print_reversed_binary_literal(int literal,int length){
@@ -163,7 +160,8 @@ void Deflate_encoder::add_code_to_string(long code,int length,unsigned char* cur
 			*current_to_add_bit = 0;
 		}
 		int bit_to_add = ((code << current_encoded_bit) & mask) >> (length - 1);
-		*current_to_add |= (bit_to_add << (7 - *current_to_add_bit));
+		//TODO::CONTROLLA
+		*current_to_add |= (bit_to_add << (/*7 -*/ *current_to_add_bit));
 		current_encoded_bit++;
 		(*current_to_add_bit)++;
 	}
