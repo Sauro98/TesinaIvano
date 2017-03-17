@@ -5,8 +5,8 @@ CPP      = g++.exe -D__DEBUG__
 CC       = gcc.exe -D__DEBUG__
 WINDRES  = windres.exe
 RES      = DEFLATE_private.res
-OBJ      = main.o deflate_encoder.o lz77_encoder.o $(RES)
-LINKOBJ  = main.o deflate_encoder.o lz77_encoder.o $(RES)
+OBJ      = main.o deflate_encoder.o lz77_encoder.o deflate_decoder.o global_functions.o $(RES)
+LINKOBJ  = main.o deflate_encoder.o lz77_encoder.o deflate_decoder.o global_functions.o $(RES)
 LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib32" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib32" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -m32 -g3
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include/c++"
@@ -33,6 +33,12 @@ deflate_encoder.o: deflate_encoder.cpp
 
 lz77_encoder.o: lz77_encoder.cpp
 	$(CPP) -c lz77_encoder.cpp -o lz77_encoder.o $(CXXFLAGS)
+
+deflate_decoder.o: deflate_decoder.cpp
+	$(CPP) -c deflate_decoder.cpp -o deflate_decoder.o $(CXXFLAGS)
+
+global_functions.o: global_functions.cpp
+	$(CPP) -c global_functions.cpp -o global_functions.o $(CXXFLAGS)
 
 DEFLATE_private.res: DEFLATE_private.rc 
 	$(WINDRES) -i DEFLATE_private.rc -F pe-i386 --input-format=rc -o DEFLATE_private.res -O coff 

@@ -61,7 +61,7 @@ long* LZ77_Encoder::getNext(int* result_length){
     	to_return[0] = original.at(lh_index);
     	*result_length = 1;
 //   	println("lh_index + "<<l<<" + "<<1);
-    	lh_index = lh_index + l + 1;
+    	lh_index++;
 //    	println("lh_index: "<<lh_index);
 		return to_return; 
     }else{
@@ -70,7 +70,7 @@ long* LZ77_Encoder::getNext(int* result_length){
     	to_return[1] = o;
     	*result_length = 2;
 //    	println("-lh_index + "<<l<<" + "<<1);
-    	lh_index = lh_index + l + 1;
+    	lh_index = lh_index + l;
 //    	println("-lh_index: "<<lh_index);
     	return to_return;
     }
@@ -144,7 +144,7 @@ long* LZ77_Encoder::getNext(int* result_length){
     return encoded;
 }*/
 
-std::string LZ77_Encoder::decode(lz77_r* encoded, int length){
+/*std::string LZ77_Encoder::decode(lz77_r* encoded, int length){
 	std::string decoded = "";
 	for(int index = 0;index < length;index++){
 		int t_length = encoded[index].l;
@@ -156,4 +156,4 @@ std::string LZ77_Encoder::decode(lz77_r* encoded, int length){
 		decoded += next;
 	}
 	println("DECODED: " + decoded);
-}
+}*/

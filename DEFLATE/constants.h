@@ -18,31 +18,63 @@
 // 1: LIGHT DEBUG
 // 2: DEEP DEBUG
 
-#define DEBUG 0
+#define DEBUG 1
 
-typedef struct Lz77_reference{
-        //distance from prefix start in the encoded string
-        int o;
-        //length of the prefix
-        int l;
-        //next charachter in string
-        char a;
-        /*//if next char is valid or not
-        bool next_valid;
-        //constructor
-        Lz77_reference(int _o,int _l,char _a){
-            Lz77_reference(_o,_l,_a,true);
-        }
-        */
-        Lz77_reference(int _o,int _l,char _a/*bool _next_valid*/){
-            o = _o;
-            l = _l;
-            a = _a;
-            //next_valid = _next_valid;
-        }
-        Lz77_reference(){}
+
+//constants for decoding
+
+//last block code
+
+#define BFINAL 1
+
+//block types
+#define BTYPE00 0
+#define BTYPE01 1
+#define BTYPE10 2
+#define BTYPE11 3
+
+//end code
+#define END_CODE 256
+
+#define MAX_BITS  10
+
+
+#define MASK_1_BIT 1U
+#define MASK_2_BITS 3U
+#define MASK_3_BITS 7U
+#define MASK_4_BITS 15U
+#define MASK_5_BITS 31U
+#define MASK_6_BITS 63U
+#define MASK_7_BITS 127U
+#define MASK_8_BITS 255U
+#define MASK_9_BITS 511U
+
+typedef struct Huffman_node{
+        int value;
+        Huffman_node* parent;
+        Huffman_node* left_child;
+        Huffman_node* right_child;
         
-}lz77_r;
+        Huffman_node(int _value){
+            value = _value;
+            parent = NULL;
+            left_child = NULL;
+            right_child = NULL;
+        }
+        
+        Huffman_node(Huffman_node* _parent){
+        	left_child = NULL;
+        	right_child = NULL;
+        	parent = _parent;
+        	value = -1;
+        }
+        
+        ~Huffman_node(){
+        	free(parent);
+        	free(left_child);
+        	free(right_child);
+        }
+}node_f;
 
 
 #endif
