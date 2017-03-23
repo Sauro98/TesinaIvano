@@ -17,9 +17,9 @@ class Deflate_decoder
 		
 		int get_next_static_value(std::string feed,long*current_char,int* current_bit);
 		unsigned int read_bits(std::string feed,long* current_char,int* current_bit,int bits_count);
-		
+		unsigned int read_bits(std::string feed,long* current_char,int* current_bit,int bits_count,bool reversed);
 		int get_length_from_code(int code);
-		
+		int get_distance_from_code(int code);
 	protected:
 };
 

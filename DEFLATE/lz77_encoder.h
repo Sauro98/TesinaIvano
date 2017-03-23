@@ -32,7 +32,7 @@ class LZ77_Encoder
 		long* getNext(int* result_length);
 		
 		
-		//old end unfit implementation
+		//old and unfit implementation
 		//lz77_r* encode(std::string original,int* encoded_length);
 		//std::string decode(lz77_r* encoded,int length);
 };

@@ -22,14 +22,9 @@ Deflate_decoder::Deflate_decoder(std::string _original){
     	long code = static_codes[c_i];
     	int code_length = get_static_literal_length(c_i);
     	int mask = get_mask_for_length(code_length);
-    	//if(c_i == 68 ||c_i == 277 || c_i == 101)
-    	//	println("CHAR "<<(char)c_i<<" CODE "<<code <<" LEN "<<code_length);
-    		
     	node_f* current_node = static_root;
     	for(int a = 0;a < code_length; a++){
     		int curr = ((code <<  (a )) & mask ) >> (code_length - 1);
-    		//if(c_i == 68 ||c_i == 277 || c_i == 101)
-    		//	print(curr);
     		if(curr == 0){
     			if(current_node->left_child == NULL)
     				current_node->left_child = new node_f(current_node);
@@ -42,81 +37,199 @@ Deflate_decoder::Deflate_decoder(std::string _original){
     		if(a == code_length - 1)
     			current_node->value = c_i;
     	}
-    	//if(c_i == 68 ||c_i == 277 || c_i == 101)
-    		//	println("");
     }
 }
 
 std::string Deflate_decoder::decode(){
+	std::ostringstream debug_result;
+	//input string pointers
 	long current_byte = 0;
 	int current_bit = 0;
-	for(int a = 0; a < original.length();a++){
-            for(int b = 0; b < 8;b++){
-                    print(read_bits(original,&current_byte,&current_bit,1));
-            }
-            println("");
-    }
-    current_byte = 0;
-	current_bit = 0;
+	
+	bool lastwasliteral = true;
+	
+	//output string
+	std::string output = "";
+	
+	#if DEBUG > 1
+		for(int a = 0; a < original.length();a++){
+	            for(int b = 0; b < 8;b++){
+	                    print(read_bits(original,&current_byte,&current_bit,1));
+	            }
+	            println("");
+	    }
+	    current_byte = 0;
+		current_bit = 0;
+	#endif
+	
 	int bfinal = 0;
 	do{
         bfinal = read_bits(original,&current_byte,&current_bit,1);
 		int btype = read_bits(original,&current_byte,&current_bit,2);
-		/*//bits are in reversed order
-		if(btype == 1)
-		         btype = 2;
-        else if (btype == 2)
-                 btype = 1;*/
 		#if DEBUG > 0
-			println("BTYPE: "<<btype);
-			println("BFINAL: "<<bfinal);
+			debug_result << "BTYPE: ";
+			debug_result << btype;
+			debug_result << "\nBFINAL: ";
+			debug_result << bfinal;
 		#endif
 		if(btype == BTYPE00){
 			
 		}else if(btype == BTYPE10){
 			
 		}else if(btype == BTYPE01){
-			println("STATIC DECODING");
+			#if DEBUG > 0
+				debug_result << "\nSTATIC DECODING\n";
+			#endif
 			int decoded_value = 0;
 			do{
 				decoded_value = get_next_static_value(original,&current_byte,&current_bit);
 				if(decoded_value < 256){
-					println("LITERAL - "<<(char)decoded_value);
+					#if DEBUG > 0
+						if(!lastwasliteral)
+						debug_result <<"literal '";
+						debug_result << (char)decoded_value;
+					#endif
+					output += (char)decoded_value;
+					lastwasliteral = true;
 				}else if(decoded_value > 256){
-					println("LEN-DIS - not implemented");
 					int length = get_length_from_code(decoded_value);
 					int e_b = 0;
 					get_static_length_extra_bits(length,&e_b);
 					int extra_bits = read_bits(original,&current_byte,&current_bit,e_b);
 					length += extra_bits;
-					println("LENGTH - "<<length);
+					#if DEBUG > 0
+						if(lastwasliteral)
+						debug_result << "\n";
+						debug_result << "match (";
+						debug_result << length;
+						
+					#endif
 					
-					//TODO (#1#): NOW GET DISTANCE
+					//DISTANCES DO NOT HAVE TO BE READ IN REVERSE ORDER SO ADD TRUE WHEN READING A DISTANCE WITH read_bits
+					
+					int distance_code = read_bits(original,&current_byte,&current_bit,5,true);
+					int distance = get_distance_from_code(distance_code);
+					e_b = 0;
+					get_static_distance_extra_bits(distance,&e_b);
+					extra_bits = read_bits(original,&current_byte,&current_bit,e_b,false);
+					distance += extra_bits;
+					
+					#if DEBUG > 0
+						debug_result << ",";
+						debug_result << distance;
+						debug_result << ") \n";
+					#endif
+					
+					//println("\n eb "<<extra_bits<<" l "<<e_b);
+					int p_l = output.length();
+					for(int i = p_l - distance;i < (p_l - distance) + length; i++){
+						if(i >= 0){
+							output += output.at(i);
+						} else print("error");
+					}
+					lastwasliteral = false;
 		
 				}
 			}while(decoded_value != END_CODE);
 			
 		}else{
-			println("CRITICAL ERROR");
+			#if DEBUG > 0
+				println("CRITICAL ERROR");
+			#endif
 		}
 	}while(bfinal != BFINAL);
-	return "";
+	
+	println("");
+	
+	#if DEBUG > 1
+		println("OUTPUT: "<<output);
+	#endif
+	
+	//println(debug_result);
+	
+	std::ofstream myfile;
+    myfile.open ("decompressed_debug.txt");
+    myfile << debug_result.str();
+    myfile << "\n";
+    myfile << output;
+    myfile.close();
+	
+	return output;
 }
 
 int Deflate_decoder::get_next_static_value(std::string feed,long*current_char,int* current_bit){
 	node_f* curr_node = static_root;
 	while(curr_node->value == -1){
 		int movement = read_bits(feed,current_char,current_bit,1);
-		print(movement);
+		//print(movement);
 		if(movement == 0)
 			curr_node = curr_node->left_child;
 		else
 			curr_node = curr_node->right_child;
 	}
-	println("");
+	//println("");
 	int value = curr_node->value;
-	//println("value "<<value<<" "<<(char)value);
+	//println("value "<<value<<" "<<value);
 	return value;
+}
+
+int Deflate_decoder::get_distance_from_code(int code){
+	if(code <= 4)
+		return code + 1;
+	switch(code){
+		case 5:
+			return 7;
+		case 6:
+			return 9;
+		case 7:
+			return 13;
+		case 8:
+			return 17;
+		case 9:
+			return 25;
+		case 10:
+			return 33;
+		case 11:
+			return 49;
+		case 12:
+			return 65;
+		case 13:
+			return 97;
+		case 14:
+			return 129;
+		case 15:
+			return 193;
+		case 16:
+			return 257;
+		case 17:
+			return 385;
+		case 18:
+			return 513;
+		case 19:
+			return 769;
+		case 20:
+			return 1025;
+		case 21:
+			return 1537;
+		case 22:
+			return 2049;
+		case 23:
+			return 3073;
+		case 24:
+			return 4097;
+		case 25:
+			return 6145;
+		case 26:
+			return 8193;
+		case 27:
+			return 12289;
+		case 28:
+			return 16385;
+		case 29:
+			return 24577;
+		
+	}
+	return 0;
 }
 
 int Deflate_decoder::get_length_from_code(int code){
@@ -183,7 +296,7 @@ int Deflate_decoder::get_length_from_code(int code){
 	return 0;
 }
 
-unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int* current_bit,int bits_count){
+unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int* current_bit,int bits_count,bool reversed){
 	unsigned int to_return = 0;
 	char curr_char = feed.at(*current_char);
 	for(int read_bit = 0;read_bit < bits_count;read_bit++){
@@ -193,9 +306,16 @@ unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int*
 			curr_char = feed.at(*current_char);
 		}
 		unsigned char bit_to_add = (unsigned char)(curr_char << (7 - (*current_bit))) >> 7;
-		to_return |= (bit_to_add << read_bit);
+		if(!reversed)
+			to_return |= (bit_to_add << (read_bit));
+		else
+			to_return |= (bit_to_add << (bits_count - 1 - read_bit));
 		(*current_bit)++;
 	}
 	return to_return;
+}
+
+unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int* current_bit,int bits_count){
+	return read_bits(feed,current_char,current_bit,bits_count,false);
 }
 

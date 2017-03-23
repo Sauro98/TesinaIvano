@@ -21,7 +21,7 @@ class Deflate_encoder
 		//void print_binary_literal(unsigned int literal,int length);
 		void print_reversed_binary_literal(int literal,int length);
 		
-		void add_code_to_string(long code,int length,unsigned char* current_to_add,int* current_to_add_bit,std::string* compressed);
+		void add_code_to_string(long code,int length,char* current_to_add,int* current_to_add_bit);
 		
 		//static tree codes generation functions
 			//LITERALS AND LENGTHS
@@ -30,7 +30,7 @@ class Deflate_encoder
 			
 			//DISTANCES
 			int get_static_distance_code(long distance);
-			int get_static_distance_extra_bits(long distance,int* extra_bits);
+			//int get_static_distance_extra_bits(long distance,int* extra_bits);
 	protected:
 };
 
