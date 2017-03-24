@@ -13,8 +13,11 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
   <li>Des crypter working fine</li>
   <li>Huffman coding (original style) working fine</li>
   <li>LZ77 (original version) working fine</li>
-  <li>DEFLATE COMPRESSION:</li>
-  <li>Uncompressed format yet to implement</li>
-  <li>Static tree format working fine, tested with infgen</li>
-  <li>Dynamic tree format yet to implement</li>
+  <li>DEFLATE COMPRESSION:
+    <ul>
+    <li>Uncompressed format yet to implement</li>
+    <li>Static tree format working fine, tested with infgen</li>
+    <li>Dynamic tree format yet to implement</li>
+    </ul>
+  </li>
  </ul>
