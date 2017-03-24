@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <stdint.h>
 
 #define print(x) std::cout<<x
 #define println(x) std::cout<<x<<std::endl
@@ -54,6 +55,7 @@
 #define MASK_11_BITS 2047U
 #define MASK_12_BITS 4095U
 #define MASK_13_BITS 8191U
+#define MASK_16_BITS 65535U
 
 typedef struct Huffman_node{
         int value;

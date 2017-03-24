@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
 	
 	//LETTURA FILE
 	
-	std::ifstream input( "global_functions.cpp", std::ios::binary );
+	std::ifstream input( "deflate_decoder.cpp", std::ios::binary );
     // copies all data into buffer
     std::vector<char> buffer((
             std::istreambuf_iterator<char>(input)), 
@@ -46,6 +46,6 @@ int main(int argc, char** argv) {
 	
 	system("Pause");
 	//system("infgen");
-	system("infgen -r  compressed_text.txt > infgen_debug.txt");
-	//system("Pause");
+	system("infgen -r  compressed_text.txt "/*> infgen_debug.txt*/);
+	system("Pause");
 }

@@ -124,6 +124,8 @@ static long get_mask_for_length(int length){
 			return MASK_12_BITS;
 		case 13:
 			return MASK_13_BITS;
+		case 16:
+			return MASK_16_BITS;
 	}
 	return 0;
 }

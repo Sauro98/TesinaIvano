@@ -73,6 +73,18 @@ std::string Deflate_decoder::decode(){
 			debug_result << bfinal;
 		#endif
 		if(btype == BTYPE00){
+            while(current_bit != 8){
+                read_bits(original,&current_byte,&current_bit,1);
+            }
+            int16_t length = read_bits(original,&current_byte,&current_bit,16,false);
+            int16_t nlength = read_bits(original,&current_byte,&current_bit,16,false);
+            int16_t nl_test = length ^ 65535;
+            if(nlength == nl_test){
+                println("valid");
+                for(int a = 0;a < length;a++){
+                    output += (char)read_bits(original,&current_byte,&current_bit,8);        
+                }
+            }     
 			
 		}else if(btype == BTYPE10){
 			
@@ -127,6 +139,12 @@ std::string Deflate_decoder::decode(){
 							output += output.at(i);
 						} else print("error");
 					}
+					std::ofstream myfile;
+                    myfile.open ("decompressed_debug.txt");
+                    myfile << debug_result.str();
+                    myfile << "\n";
+                    myfile << output;
+                    myfile.close();
 					lastwasliteral = false;
 		
 				}
@@ -153,7 +171,6 @@ std::string Deflate_decoder::decode(){
     myfile << "\n";
     myfile << output;
     myfile.close();
-	
 	return output;
 }
 

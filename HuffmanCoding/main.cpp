@@ -5,7 +5,7 @@
 
 int main(){
 	int lengths[256];
-    std::string text = "Questo è un testo molto lungo usato solo e semplicemente come test per vedere se l'algoritmo di Huffman usato con le specifiche RFC1951 funziona correttamente, quanto ci impiega e se è figo'";
+    std::string text = "Questo è un testo molto lungo usato solo e semplicemente come test per vedere se l'algoritmo di Huffman usato con le specifiche RFC1951 funziona correttamente, quanto ci impiega e se e' figo";
     println("ORIGINALE "<<text);
     printint("Lunghezza originale: ", text.length());
     println(" bytes");
@@ -33,7 +33,6 @@ int main(){
 	elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     printint("Tempo impiegato a decomprimere: " , elapsed_secs);
     println(" secondi");
-    println("bleeh");
     system("pause");
     return 0; 
 }

@@ -13,12 +13,61 @@ Deflate_encoder::Deflate_encoder(std::string to_compress){
 	#if DEBUG > 0
 		println("END");
 	#endif
+	current_to_add = 0;
+	current_to_add_bit = 0;
 }
 
 std::string Deflate_encoder::encode(){
-	return static_encoding(original);
+    add_code_to_string(1,1);//1
+    return non_compressed_encoding(original);
+	//return static_encoding(original);
 }
 
+std::string Deflate_encoder::non_compressed_encoding(std::string to_compress){
+    add_code_to_string(0,2);//00
+    
+    //skip all remaining bits, as RFC1951
+    if(current_to_add_bit != 0){
+        output_builder << current_to_add;
+        current_to_add = 0;
+        current_to_add_bit = 0;
+    }
+    
+    //ADD HEADER
+    int16_t length = to_compress.length();
+    uint16_t reversed_l = 0;
+    for(int eb_i = 0; eb_i < 16;eb_i++){
+				int t_a = (length >> eb_i);
+				t_a &= 1;
+				reversed_l |= (t_a << (16 - 1 - eb_i));
+    }
+    println("Length: "<<length);
+    
+    add_code_to_string(reversed_l,16);
+    
+    int16_t mask = 65535;
+    int16_t nlength = (reversed_l) ^ mask;
+    println("NLength: "<<nlength);
+    add_code_to_string(nlength,16);
+    
+    if(current_to_add_bit != 0){
+        output_builder << current_to_add;
+        current_to_add = 0;
+        current_to_add_bit = 0;
+    }
+
+    //ADD DATA
+    
+    for(int d_i = 0;d_i < length;d_i++){
+            output_builder << to_compress.at(d_i);
+    }
+	
+	#if DEBUG > 0
+		println("END");
+	#endif
+    
+    return output_builder.str();
+}
 
 std::string Deflate_encoder::static_encoding(std::string to_compress){
 	
@@ -26,9 +75,8 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 	
 	std::string compressed = "";
 	
-	char current_to_add = 3;//011
-	int* current_bit = new int;
-	*current_bit = 3;
+	add_code_to_string(2,2);//10
+	
 	#if DEBUG > 0
 		println("START ENCODING");
 	#endif
@@ -48,7 +96,7 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 				//print("\t\t"<<(int) literal<<" "<<literal<<" "<<encoded_literal<<" - ");
 				debug_builder << literal;
 			#endif
-			add_code_to_string(encoded_literal,literal_length,&current_to_add,current_bit);
+			add_code_to_string(encoded_literal,literal_length);
 		}else{
 			#if DEBUG > 0
 				//println("\tLength/Distance");
@@ -65,7 +113,7 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 			#endif
 			
 			
-			add_code_to_string(encoded_length,literal_length,&current_to_add,current_bit);
+			add_code_to_string(encoded_length,literal_length);
 			
 			int extra_bits = 0;
 			int extra_bits_value = get_static_length_extra_bits(length,&extra_bits);
@@ -89,7 +137,7 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 			#endif
 			
 			
-			add_code_to_string(extra_bits_value,extra_bits,&current_to_add,current_bit);
+			add_code_to_string(extra_bits_value,extra_bits);
 			
 			unsigned int encoded_distance = get_static_distance_code(distance);
 			
@@ -99,7 +147,7 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 			#endif
 			
 			
-			add_code_to_string(encoded_distance,5,&current_to_add,current_bit);
+			add_code_to_string(encoded_distance,5);
 			
 			
 			extra_bits_value = get_static_distance_extra_bits(distance,&extra_bits);
@@ -119,16 +167,16 @@ std::string Deflate_encoder::static_encoding(std::string to_compress){
 				//print("\t\teb: ");
 			#endif
 			
-			add_code_to_string(extra_bits_value,extra_bits,&current_to_add,current_bit);
+			add_code_to_string(extra_bits_value,extra_bits);
 		}
 	}
 	
 	int end_code = 256;
 	int length = 0;
 	int encoded_end = encode_static_literal(end_code,&length);
-	add_code_to_string(encoded_end,length,&current_to_add,current_bit);
+	add_code_to_string(encoded_end,length);
 	
-	if(*current_bit != 0)
+	if(current_to_add_bit != 0)
 		output_builder << current_to_add;
 	
 	#if DEBUG > 0
@@ -169,29 +217,29 @@ void Deflate_encoder::print_reversed_binary_literal(int literal,int length){
 	println("");
 }
 
-void Deflate_encoder::add_code_to_string(long code,int length,char* current_to_add,int* current_to_add_bit){
+void Deflate_encoder::add_code_to_string(long code,int length){
 	if(length > 0){
 		int current_encoded_bit = 0;
 		long mask = get_mask_for_length(length);
 		while(current_encoded_bit < length){
-			if(*current_to_add_bit == 8){
-				output_builder << (*current_to_add);
-				*current_to_add = 0;
-				*current_to_add_bit = 0;
+			if(current_to_add_bit == 8){
+				output_builder << current_to_add;
+				current_to_add = 0;
+				current_to_add_bit = 0;
 			}
 			int bit_to_add = ((code << current_encoded_bit) & mask) >> (length - 1);
 			
 			#if DEBUG > 0
-				//print(bit_to_add);
+				print(bit_to_add);
 			#endif
 			
 			//TODO::CONTROLLA
-			*current_to_add |= (bit_to_add << (/*7 -*/ *current_to_add_bit));
+			current_to_add |= (bit_to_add << (/*7 -*/ current_to_add_bit));
 			current_encoded_bit++;
-			(*current_to_add_bit)++;
+			current_to_add_bit++;
 		}
 		#if DEBUG > 0
-			//println("");
+			println("");
 		#endif
 	}
 	return;

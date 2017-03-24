@@ -23,7 +23,7 @@ lz77_r* LZ77_Encoder::encode(std::string original,int* encoded_length){
     int j = 0;
     //while the first element in the look ahead buffer is not the last element in the string
     while(i < original_length ){
-        printintln("I CYCLE ",i);
+        //printintln("I CYCLE ",i);
         int l = 0;
         int o = 0;
         //start from the last element in the search buffer
@@ -40,9 +40,9 @@ lz77_r* LZ77_Encoder::encode(std::string original,int* encoded_length){
             	int c_j = s_i + 1;
             	
             	while(c_j > -1 && ((i + c_l) != (original_length - 1)) && original.at(c_j) == original.at(i + c_l)){
-	                print("\t\t");
-	                printint(original.at(c_j)," == ");
-	                println(original.at(i+c_l));
+	                //print("\t\t");
+	                //printint(original.at(c_j)," == ");
+	                //println(original.at(i+c_l));
 	                c_j++;
 	                c_l++;
             	}
@@ -56,10 +56,10 @@ lz77_r* LZ77_Encoder::encode(std::string original,int* encoded_length){
             }
             s_i--;
         }
-        printintln("AT: ", i + l);
-        printintln("l: ",l);
+        //printintln("AT: ", i + l);
+        //printintln("l: ",l);
         lz77_r reference(o,l,original.at(i + l));
-        printint("\tTupla( " , o);
+        printint("Tupla( " , o);
         printint(",",l);
         printint(",",original.at(i + l));
         println(")");
