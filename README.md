@@ -1,7 +1,7 @@
 # TesinaIvano
 Backup for high school final project
 
-<b>General info</b>
+<b>General info</b><br>
 I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allow users to crypt their compressed files
 <ul>
 <li>light crypting with DES</li>
