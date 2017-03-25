@@ -15,9 +15,12 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
   <li>LZ77 (original version) working fine</li>
   <li>DEFLATE COMPRESSION:
     <ul>
-    <li>Uncompressed format working fine, tested with infgen</li>
-    <li>Static tree format working fine, tested with infgen</li>
+    <li>Uncompressed format working fine</li>
+    <li>Static tree format working fine</li>
     <li>Dynamic tree format yet to implement</li>
     </ul>
+    Compressed blocks format is checked with <a href = "https://github.com/madler/infgen">infgen</a> 
   </li>
  </ul>
+ </br>
+ This project is entirely written in c++
