@@ -18,8 +18,8 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
     <li>Uncompressed format working fine</li>
     <li>Static tree format working fine</li>
     <li>Dynamic tree format yet to implement</li>
-    </ul>
-    Compressed blocks format is checked with <a href = "https://github.com/madler/infgen">infgen</a> 
+    </ul><br>
+    Compressed blocks formats were tested with <a href = "https://github.com/madler/infgen">infgen</a> 
   </li>
  </ul>
  </br>
