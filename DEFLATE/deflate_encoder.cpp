@@ -19,8 +19,55 @@ Deflate_encoder::Deflate_encoder(std::string to_compress){
 
 std::string Deflate_encoder::encode(){
     add_code_to_string(1,1);//1
-    return non_compressed_encoding(original);
+    return dynamic_encoding(original);
+    //return non_compressed_encoding(original);
 	//return static_encoding(original);
+}
+
+std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
+	add_code_to_string(1,2);//10
+	
+	std::vector<long> literals_vector;
+	literals_vector.reserve(to_compress.size());
+	std::vector<long> distances_vector;
+	
+	LZ77_Encoder lz77_encoder = LZ77_Encoder(to_compress);
+	
+	std::string compressed = "";
+	
+	#if DEBUG > 0
+		println("START ENCODING");
+	#endif
+	while(lz77_encoder.hasMore()){
+		int result_length = 0;
+		long* result = lz77_encoder.getNext(&result_length);
+		
+		if(result_length == 1){
+			//literal
+			literals_vector.push_back(result[0]);
+		}else{
+			//length
+			literals_vector.push_back(get_static_length_code(result[0]));
+			distances_vector.push_back(get_static_distance_code(result[1]));
+		}
+	}
+	int l_length = 0;
+	int d_length = 0;
+	
+	val_f* l_frequencies = Huffman_Tree::get_value_frequencies(literals_vector,&l_length);	
+	val_f* d_frequencies = Huffman_Tree::get_value_frequencies(distances_vector,&d_length);
+	
+	for(int i = 0;i<l_length;i++){
+		println("Literal "<<l_frequencies[i].value<<" Frequence "<<l_frequencies[i].frequence);
+	}
+	for(int i = 0;i<d_length;i++){
+		println("Distance "<<d_frequencies[i].value<<" Frequence "<<d_frequencies[i].frequence);
+	}
+	
+	node_f* l_root = Huffman_Tree::generate_tree(l_frequencies,l_length);
+	node_f* d_root = Huffman_Tree::generate_tree(d_frequencies,d_length);
+	
+	return "gfhj";
 }
 
 std::string Deflate_encoder::non_compressed_encoding(std::string to_compress){
@@ -230,7 +277,7 @@ void Deflate_encoder::add_code_to_string(long code,int length){
 			int bit_to_add = ((code << current_encoded_bit) & mask) >> (length - 1);
 			
 			#if DEBUG > 0
-				print(bit_to_add);
+				//print(bit_to_add);
 			#endif
 			
 			//TODO::CONTROLLA
@@ -239,7 +286,7 @@ void Deflate_encoder::add_code_to_string(long code,int length){
 			current_to_add_bit++;
 		}
 		#if DEBUG > 0
-			println("");
+			//println("");
 		#endif
 	}
 	return;

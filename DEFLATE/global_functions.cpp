@@ -46,14 +46,14 @@ static long* construct_static_literal_and_lengths_tree(){
 	#if DEBUG > 1
 		println("\tSTART POPULATION OF BL_COUNT ARRAY");
 	#endif
-	int bl_count[MAX_BITS];
-	for(int i = 0;i < MAX_BITS;i++){
+	int bl_count[MAX_BITS_STATIC];
+	for(int i = 0;i < MAX_BITS_STATIC;i++){
 		bl_count[i] = 0;
 	}
 	for(int i = 0;i<= 287;i++){
 		bl_count[lengths[i]] ++;
 	}
-	/*for(int a = 0; a < MAX_BITS; a++){
+	/*for(int a = 0; a < MAX_BITS_STATIC; a++){
 		println("BL_COUNT["<<a<<"]: "<<bl_count[a]);
 	}*/
 	#if DEBUG > 1
@@ -61,16 +61,16 @@ static long* construct_static_literal_and_lengths_tree(){
 	#endif
 	long code = 0;
     bl_count[0] = 0;
-    long next_code[MAX_BITS];
+    long next_code[MAX_BITS_STATIC];
     #if DEBUG > 1
 		println("\tSTART GENERATION OF SMALLEST CODES FOR LENGTHS");
 	#endif
-    for (int bits = 1; bits <= MAX_BITS; bits++) {
+    for (int bits = 1; bits <= MAX_BITS_STATIC; bits++) {
     	code = (code + bl_count[bits-1]) << 1;
     	next_code[bits] = code;
     }
     
-    /*for(int a = 1; a < MAX_BITS; a++){
+    /*for(int a = 1; a < MAX_BITS_STATIC; a++){
 		println("NEXT_CODE["<<a<<"]: "<<next_code[a]);
 	}*/
     

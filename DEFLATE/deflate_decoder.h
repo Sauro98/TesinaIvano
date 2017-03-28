@@ -8,7 +8,7 @@ class Deflate_decoder
 {
 	public:
 		std::string original;
-		node_f* static_root;
+		s_node_f* static_root;
 		
 		Deflate_decoder(std::string _original);
 		

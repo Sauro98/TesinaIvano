@@ -1,8 +1,11 @@
 #ifndef DEFLATE_ENCODER_H
 #define DEFLATE_ENCODER_H
 
+#include <vector>
+
 #include "lz77_encoder.h"
 #include "global_functions.cpp"
+#include "huffman_tree.h"
 
 class Deflate_encoder
 {
@@ -21,7 +24,11 @@ class Deflate_encoder
 		std::string static_encoding(std::string to_compress);
 		unsigned int encode_static_literal(int literal,int* literal_length);
 		
+		//BTYPE00
 		std::string non_compressed_encoding(std::string to_compress);
+		
+		// BTYPE 10
+		std::string dynamic_encoding(std::string to_compress);
 		
 		//void print_binary_literal(unsigned int literal,int length);
 		void print_reversed_binary_literal(int literal,int length);

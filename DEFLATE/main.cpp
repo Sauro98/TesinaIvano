@@ -6,6 +6,10 @@
 #include "deflate_decoder.h"
 int main(int argc, char** argv) {
 	
+	//////////////////////////////////
+	//TODO: Mettere a posto la classe Huffman tree per usarla con i blocchi dinamici
+	
+	/*
 	//LETTURA FILE
 	
 	std::ifstream input( "deflate_decoder.cpp", std::ios::binary );
@@ -16,9 +20,9 @@ int main(int argc, char** argv) {
 	
 	std::string orig(buffer.begin(),buffer.end());
 	
-	
+	*/
 	/////////////////////////////////////////////
-	
+	std::string orig = "Hola olaf";
 	Deflate_encoder encoder = Deflate_encoder(orig);
 	std::string compressed = encoder.encode();
 	

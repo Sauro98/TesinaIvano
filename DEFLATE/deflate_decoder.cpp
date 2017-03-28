@@ -16,22 +16,22 @@ Deflate_decoder::Deflate_decoder(std::string _original){
 			
 	*/
 	
-	static_root = new node_f((Huffman_node*)NULL);
+	static_root = new s_node_f((Static_Huffman_node*)NULL);
     
     for(int c_i = 0;c_i < 288;c_i++){
     	long code = static_codes[c_i];
     	int code_length = get_static_literal_length(c_i);
     	int mask = get_mask_for_length(code_length);
-    	node_f* current_node = static_root;
+    	s_node_f* current_node = static_root;
     	for(int a = 0;a < code_length; a++){
     		int curr = ((code <<  (a )) & mask ) >> (code_length - 1);
     		if(curr == 0){
     			if(current_node->left_child == NULL)
-    				current_node->left_child = new node_f(current_node);
+    				current_node->left_child = new s_node_f(current_node);
     			current_node = current_node->left_child;
     		}else{
     			if(current_node->right_child == NULL)
-    				current_node->right_child = new node_f(current_node);
+    				current_node->right_child = new s_node_f(current_node);
     			current_node = current_node->right_child;
     		}
     		if(a == code_length - 1)
@@ -175,7 +175,7 @@ std::string Deflate_decoder::decode(){
 }
 
 int Deflate_decoder::get_next_static_value(std::string feed,long*current_char,int* current_bit){
-	node_f* curr_node = static_root;
+	s_node_f* curr_node = static_root;
 	while(curr_node->value == -1){
 		int movement = read_bits(feed,current_char,current_bit,1);
 		//print(movement);

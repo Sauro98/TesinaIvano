@@ -1,30 +1,29 @@
 # Project: DEFLATE
-# Makefile created by Dev-C++ 4.9.9.2
+# Makefile created by Dev-C++ 5.7.1
 
-CPP  = g++.exe
-CC   = gcc.exe
-WINDRES = windres.exe
-RES  = DEFLATE_private.res
-OBJ  = main.o deflate_encoder.o lz77_encoder.o deflate_decoder.o global_functions.o $(RES)
-LINKOBJ  = main.o deflate_encoder.o lz77_encoder.o deflate_decoder.o global_functions.o $(RES)
-LIBS =  -L"C:/Dev-Cpp/lib"  
-INCS =  -I"C:/Dev-Cpp/include" 
-CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include" 
-BIN  = DEFLATE.exe
-CXXFLAGS = $(CXXINCS)   -fshort-double
-CFLAGS = $(INCS)   -fshort-double
-RM = rm -f
+CPP      = g++.exe
+CC       = gcc.exe
+WINDRES  = windres.exe
+RES      = DEFLATE_private.res
+OBJ      = main.o deflate_encoder.o lz77_encoder.o deflate_decoder.o global_functions.o huffman_tree.o queue.o $(RES)
+LINKOBJ  = main.o deflate_encoder.o lz77_encoder.o deflate_decoder.o global_functions.o huffman_tree.o queue.o $(RES)
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib32" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib32" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -m32
+INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include"
+CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include/c++"
+BIN      = DEFLATE.exe
+CXXFLAGS = $(CXXINCS) -m32
+CFLAGS   = $(INCS) -m32
+RM       = rm.exe -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before DEFLATE.exe all-after
-
+all: all-before $(BIN) all-after
 
 clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "DEFLATE.exe" $(LIBS)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
 
 main.o: main.cpp
 	$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
@@ -41,5 +40,12 @@ deflate_decoder.o: deflate_decoder.cpp
 global_functions.o: global_functions.cpp
 	$(CPP) -c global_functions.cpp -o global_functions.o $(CXXFLAGS)
 
+huffman_tree.o: huffman_tree.cpp
+	$(CPP) -c huffman_tree.cpp -o huffman_tree.o $(CXXFLAGS)
+
+queue.o: queue.cpp
+	$(CPP) -c queue.cpp -o queue.o $(CXXFLAGS)
+
 DEFLATE_private.res: DEFLATE_private.rc 
-	$(WINDRES) -i DEFLATE_private.rc --input-format=rc -o DEFLATE_private.res -O coff 
+	$(WINDRES) -i DEFLATE_private.rc -F pe-i386 --input-format=rc -o DEFLATE_private.res -O coff 
+

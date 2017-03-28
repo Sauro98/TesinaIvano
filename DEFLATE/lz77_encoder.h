@@ -31,7 +31,7 @@ class LZ77_Encoder
 		//returns the next element (literal or length-distance pair)
 		long* getNext(int* result_length);
 		
-		
+		void reset();
 		//old and unfit implementation
 		//lz77_r* encode(std::string original,int* encoded_length);
 		//std::string decode(lz77_r* encoded,int length);
