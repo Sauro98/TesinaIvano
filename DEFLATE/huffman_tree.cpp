@@ -59,13 +59,13 @@ void Huffman_Tree::order_frequence_array(val_f* frequencies,int length){
 }
 
 //order dictionary for DEfLATE coding
-/*void Huffman_Tree::order_dictionary(char_d dictionary[]){
+void Huffman_Tree::order_dictionary(val_d dictionary[],int d_length){
      bool swapped = true;
      while(swapped){
      	swapped = false;
-        for(int index = 0;index < frequencies_array_length - 1;index++){
+        for(int index = 0;index < d_length - 1;index++){
             if( (int) (dictionary[index].symbol) > (int)(dictionary[index + 1].symbol)){
-                char_d temp = dictionary[index + 1];
+                val_d temp = dictionary[index + 1];
                 dictionary[index + 1] = dictionary[index];
                 dictionary[index] = temp;
                 swapped = true;
@@ -75,8 +75,6 @@ void Huffman_Tree::order_frequence_array(val_f* frequencies,int length){
      return;
 }
 
-
-*/
 
 long Huffman_Tree::max_long_value(){
    return std::numeric_limits<long>::max();
@@ -116,9 +114,9 @@ node_f* Huffman_Tree::generate_tree(val_f* frequencies,int length){
      #endif
      return root_node;
 }
-/*
+
 //get the huffman value of a char
-std::string Huffman_Tree::get_char_value(node_f* start,char to_find){
+std::string Huffman_Tree::get_char_value(node_f* start,long to_find){
 	if(start->c_f.value == to_find){
 		return "-";
 	}else{
@@ -138,48 +136,46 @@ std::string Huffman_Tree::get_char_value(node_f* start,char to_find){
 	}	
 }
 
-std::string Huffman_Tree::static_tree_encoding(int* lengths){
-	frequencies = get_value_frequencies();
-    order_frequence_array();
-    generate_tree();
-    char_d dictionary[frequencies_array_length]; //as RFC 1951
+code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,bool literals){
+	int alphabet_length = (literals)?DYNAMIC_LITERALS_ALPHABET_LENGTH:DYNAMIC_DISTANCES_ALPHABET_LENGTH;
+    val_d dictionary[f_length]; //as RFC 1951
 	//FIRST I GET THE ORIGINAL HUFFMAN PREFIX AND DETERMINE THE GRATER CODE LENGTH
 	int MAX_BITS = 0;	
 	
-	for(int i=0;i<frequencies_array_length;i++){
-		char current = frequencies[i].value;
+	for(int i=0;i<f_length;i++){
+		long current = frequencies[i].value;
 		std::string prefix = get_char_value(root_node,current);
 		prefix = prefix.substr(0,prefix.length() - 1);
-		dictionary[i] = char_d(current,prefix);
+		dictionary[i] = val_d(current,prefix);
 		if(prefix.length() > MAX_BITS) MAX_BITS = prefix.length();
 	}
     //order dictionary by symbol
-    order_dictionary(dictionary);
-	for(int i=0;i<frequencies_array_length;i++){
+    order_dictionary(dictionary,f_length);
+	/*for(int i=0;i<f_length;i++){
 		println(dictionary[i].symbol<<" "<<(int)dictionary[i].symbol);
-	}
+	}*/
    	//THEN I GET THE MINIMUM VALUE OF THE PREFIX FOR EACH CODE LENGTH; MORE SPECIFICATIONS AT https://tools.ietf.org/html/rfc1951
 	    //if maximum prefix length is 4 I need a array of length 5 to store the 4 bits values count
 	    MAX_BITS++;
 	    
-	    code_d deflate_dictionary[ASCII_CHARACHTERS_COUNT];
+	    code_d* deflate_dictionary = new code_d[alphabet_length];
     	//d_i = dictionary index
     	int d_i = 0;
 	    
-	    for(int c_ai = 0; c_ai < ASCII_CHARACHTERS_COUNT; c_ai++){
-           if(d_i < frequencies_array_length && c_ai == (int)dictionary[d_i].symbol){
+	    for(int c_ai = 0; c_ai < alphabet_length; c_ai++){
+           if(d_i < f_length && c_ai == (int)dictionary[d_i].symbol){
 	    		int code_length = dictionary[d_i].value.length();
-	    		//println(code_length);
-				deflate_dictionary[c_ai] = code_d(0,code_length,(char)c_ai);
+	    		println(code_length);
+				deflate_dictionary[c_ai] = code_d(0,code_length,c_ai);
 				d_i++;
 	    	}else{
-	    		deflate_dictionary[c_ai] = code_d(0,0,(char)c_ai);
+	    		deflate_dictionary[c_ai] = code_d(0,0,c_ai);
 	    	}
         }
 	    
 	    #if DEBUG > 0
-	    println("GENERATING CODES");
-	    println("\tMAX_BITS "<<MAX_BITS);
+	    //println("GENERATING CODES");
+	    //println("\tMAX_BITS "<<MAX_BITS);
 	    #endif
 	    
 	    //binary length counter (keeps track of how many symbols have a certain code length)
@@ -188,13 +184,13 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
 	    for(int i = 0;i < MAX_BITS;i++){
 	    	bl_count[i] = 0;
 	    }
-	    for(int i=0;i<ASCII_CHARACHTERS_COUNT;i++){
+	    for(int i=0;i<alphabet_length;i++){
 			bl_count[deflate_dictionary[i].code_length] ++;
 		}
 		
 		#if DEBUG > 0
 		for(int i = 1;i < MAX_BITS;i++){
-	    	println("\tbl_count["<<i<<"] = "<<bl_count[i]);
+	    	//println("\tbl_count["<<i<<"] = "<<bl_count[i]);
 	    }
 	    #endif
 	    
@@ -208,21 +204,21 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
 	    
 	    #if DEBUG > 0
 	    for(int i = 1;i < MAX_BITS;i++){
-	    	println("\tnext_code["<<i<<"] = "<<next_code[i]);
+	    	//println("\tnext_code["<<i<<"] = "<<next_code[i]);
 	    }
-	    println("END\n");
+	    //println("END\n");
 	    #endif
     //END   
     
     //THEN I ASSIGN A NUMERICAL VALUE TO EVERY SYMBOL IN THE TREE
         #if DEBUG > 0
-        println("ASSIGNING CODES");
+        //println("ASSIGNING CODES");
         #endif
 	    //c_ai = code assign idex
-	    for(int c_ai = 0; c_ai < ASCII_CHARACHTERS_COUNT; c_ai++){
+	    for(int c_ai = 0; c_ai < alphabet_length; c_ai++){
 	    	
 	    	#if DEBUG > 1
-	    	print("\tCURRENT ASCII SYMBOL: "<<(char)c_ai<<" "<<c_ai);
+	    	//print("\tCURRENT ASCII SYMBOL: "<<(char)c_ai<<" "<<c_ai);
 	    	#endif
     		int code_length = deflate_dictionary[c_ai].code_length;
     		if(code_length > 0){
@@ -231,72 +227,101 @@ std::string Huffman_Tree::static_tree_encoding(int* lengths){
 			    next_code[code_length] ++;
 			    deflate_dictionary[c_ai].value = def_code;
 	    		#if DEBUG > 1
-				println("code "<<(int)def_code<<" Length "<<code_length);
+				//println("code "<<(int)def_code<<" Length "<<code_length);
 				#endif
 			}
 	    }
 	    #if DEBUG > 0
-	    println("END\n");
+	    //println("END\n");
 	    #endif
+	return deflate_dictionary;
     //END 
-   
-   //NOW I TRANSLATE THE ORIGINAL STRING IN A ENCODED ONE
-   		#if DEBUG > 0
-	    println("ENCODING");
-	    #endif
-        std::string encoded = "";
-        
-        //the encoded string will be built up a char at a time
-		char to_add = 0;
-		//the index of the current bit to be added to to_add, most significant bit first, bit 0 values 128, bit 7 values 1
-		int  current_bit = 0;
-		for(int s_i = 0; s_i < original_string.length(); s_i ++){
-			char current_char = original_string.at(s_i);
-			//get the huffman value of the current charachter on the original string
-			code_d new_value = deflate_dictionary[current_char];
-			//the bit index of the prefix, most significant bit forst. example: if prefix is 011 then index 0 is 0, index 1 is 1 and index 2 is 1.
-			int char_bit = 0;
-			//add prefix bits one at a time until prefix end is reached or char to_add is full
-			while(current_bit < 8 && char_bit < new_value.code_length){
-				char curr = (unsigned char)(new_value.value << ( 8 - (new_value.code_length - char_bit))) >> 7;
-				curr = curr << (7 - current_bit);
-				to_add |= curr;
-				char_bit ++;
-				current_bit++;
-			}
-			if(current_bit == 8){
-				//if char to_add is full then add it to the encoded string
-				encoded += to_add;
-				to_add = 0;
-				current_bit = 0;
-				//if to_add became full before the end of the prefix was reached then proceed to loop through the remaining bits
-				while(current_bit < 8 && char_bit < new_value.code_length){
-					char curr = (unsigned char)(new_value.value << ( 8 - (new_value.code_length - char_bit))) >> 7;
-					curr = curr << (7 - current_bit);
-					to_add |= curr;
-					char_bit ++;
-					current_bit++;
-				}
-			}
-		}
-		//if the last bits were not added because they weren't 8 yet then add the incomplete char to the encoded string. This will obviusly require a length check when decoding otherwise the scrap bits will be decoded too
-		if(current_bit != 0){
-			encoded += to_add;
-		}
-		#if DEBUG > 0
-	    println("END\n");
-	    #endif
-   //END
-	    
-	//FOR OUTPUT TESTING
-		for(int t_i = 0;t_i < ASCII_CHARACHTERS_COUNT;t_i++){
-			lengths[t_i] = deflate_dictionary[t_i].code_length;
-		}
-	//END
-   
-   return encoded;
 }
 
+int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_bits){
+	int alphabet_length = (literals)?DYNAMIC_LITERALS_ALPHABET_LENGTH:DYNAMIC_DISTANCES_ALPHABET_LENGTH;
+	int* code_lengths_array = new int[alphabet_length];
+	int cl_i = 0;
+	int eb_i = 0;
+	for(int a_i = 0; a_i < alphabet_length; cl_i++){
+		long curr = codes[a_i].code_length;
+		if(a_i != alphabet_length-1 && curr == codes[a_i + 1].code_length){
+			int while_i = 0;
+			int max_limit = (curr == 0)?139:7;
+			
+			while(a_i + while_i < alphabet_length && while_i < max_limit && curr == codes[a_i + while_i].code_length)
+				while_i ++;
+				
+			while_i--;
+				
+			if(while_i < 3){
+				code_lengths_array[cl_i] = curr;
+				a_i++;
+			}
+			
+			if(curr == 0){
+				if(while_i < 11){
+					code_lengths_array[cl_i] = 17;
+					extra_bits[eb_i] = while_i - 3;
+					eb_i++;
+				}else{
+					code_lengths_array[cl_i] = 18;
+					extra_bits[eb_i] = while_i - 11;
+					eb_i++;
+				}
+				a_i += while_i;
+			}else{
+				code_lengths_array[cl_i] = 16;
+				extra_bits[eb_i] = while_i - 3;
+				a_i += while_i;
+				eb_i++;
+			}
+		}else{
+			code_lengths_array[cl_i] = curr;
+			a_i++;
+		}
+			
+		return code_lengths_array;	
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 // decoding function with RFC 1951 standard static tree
 std::string Huffman_Tree::static_tree_decoding(int* lengths,std::string encoded){
     //FIRST I RECREATE THE STATIC TREE

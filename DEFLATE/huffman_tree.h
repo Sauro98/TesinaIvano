@@ -19,7 +19,7 @@ class Huffman_Tree
 		// class destructor
 		~Huffman_Tree();
 		// encoding function with RFC 1951 guidelies
-		std::string static_tree_encoding(int* lenghts);
+		static code_d* dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,bool literals);
 		// decoding function with RFC 1951 guidelies
 		std::string static_tree_decoding(int* lengths,std::string encoded);
 		
@@ -30,6 +30,8 @@ class Huffman_Tree
         static void order_frequence_array(val_f* frequencies,int length);
         //generates the tree
         static node_f* generate_tree(val_f* frequencies,int length);
+        
+        static int* get_code_length_codes(code_d* codes,bool literals,int* extra_bits);
 	private:
 		//---ATTRIBUTES---
 		//the original string to encode
@@ -45,9 +47,9 @@ class Huffman_Tree
         
         //---STRING ENCODING RELATED FUNCTIONS---
         //returns the Huffman prefix of the given charachter (recursive)
-        std::string get_char_value(node_f* start,char to_find);
+        static std::string get_char_value(node_f* start,long to_find);
         //orders the dictionary array for DEFLATE
-        void order_dictionary(char_d dictionary[]);
+        static void order_dictionary(val_d dictionary[],int d_length);
         
 };
 

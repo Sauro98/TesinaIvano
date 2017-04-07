@@ -67,6 +67,34 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 	node_f* l_root = Huffman_Tree::generate_tree(l_frequencies,l_length);
 	node_f* d_root = Huffman_Tree::generate_tree(d_frequencies,d_length);
 	
+	code_d* literal_codes = Huffman_Tree::dynamic_tree_encoding(l_root,l_frequencies,l_length,true);
+	code_d* distance_codes = Huffman_Tree::dynamic_tree_encoding(d_root,d_frequencies,d_length,false);
+	
+	int* l_extra_bits = new int[DYNAMIC_LITERALS_ALPHABET_LENGTH];
+	int* d_extra_bits = new int[DYNAMIC_DISTANCES_ALPHABET_LENGTH];
+	int* l_code_lengths = Huffman_Tree::get_code_length_codes(literal_codes,true,l_extra_bits);
+	int* d_code_lengths = Huffman_Tree::get_code_length_codes(distance_codes,false,d_extra_bits);
+	
+	
+	
+	
+	/*lz77_encoder.reset();
+	
+	while(lz77_encoder.hasMore()){
+		int result_length = 0;
+		long* result = lz77_encoder.getNext(&result_length);
+		
+		if(result_length == 1){
+			//literal
+			literals_vector.push_back(result[0]);
+		}else{
+			//length
+			literals_vector.push_back(get_static_length_code(result[0]));
+			distances_vector.push_back(get_static_distance_code(result[1]));
+		}
+	}*/
+	
+	
 	return "gfhj";
 }
 

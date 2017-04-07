@@ -24,6 +24,10 @@
 #define DEBUG 1
 
 
+#define DYNAMIC_LITERALS_ALPHABET_LENGTH 286
+#define DYNAMIC_DISTANCES_ALPHABET_LENGTH 32
+
+
 //constants for decoding
 
 //last block code
@@ -133,24 +137,24 @@ typedef struct Huffman_node{
         }
 }node_f;
 
-typedef struct Char_dictionary{
+typedef struct Value_dictionary{
 	//the char symbol
 	unsigned long symbol;
 	//its prefix value in the tree
 	std::string value;
-	Char_dictionary(long _symbol,std::string _value){
+	Value_dictionary(long _symbol,std::string _value){
 		symbol = _symbol;
 		value = _value;
 	}
-	Char_dictionary(){}
-}char_d;
+	Value_dictionary(){}
+}val_d;
 
 typedef struct Code_dictionary{
 	//the int value
 	int value;
 	//its actual code length
 	int code_length;
-	//the charachter that the code represents
+	//the original value that the code represents
 	long symbol;
 	
 	Code_dictionary(int _value,int _code_length,long _symbol){
