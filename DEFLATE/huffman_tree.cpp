@@ -238,7 +238,7 @@ code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies
     //END 
 }
 
-int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_bits){
+int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_bits,int* codes_array_length){
 	int alphabet_length = (literals)?DYNAMIC_LITERALS_ALPHABET_LENGTH:DYNAMIC_DISTANCES_ALPHABET_LENGTH;
 	int* code_lengths_array = new int[alphabet_length];
 	int cl_i = 0;
@@ -257,30 +257,31 @@ int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_
 			if(while_i < 3){
 				code_lengths_array[cl_i] = curr;
 				a_i++;
-			}
-			
-			if(curr == 0){
-				if(while_i < 11){
-					code_lengths_array[cl_i] = 17;
-					extra_bits[eb_i] = while_i - 3;
-					eb_i++;
+			}else{
+				
+				if(curr == 0){
+					if(while_i < 11){
+						code_lengths_array[cl_i] = 17;
+						extra_bits[eb_i] = while_i - 3;
+						eb_i++;
+					}else{
+						code_lengths_array[cl_i] = 18;
+						extra_bits[eb_i] = while_i - 11;
+						eb_i++;
+					}
+					a_i += while_i;
 				}else{
-					code_lengths_array[cl_i] = 18;
-					extra_bits[eb_i] = while_i - 11;
+					code_lengths_array[cl_i] = 16;
+					extra_bits[eb_i] = while_i - 3;
+					a_i += while_i;
 					eb_i++;
 				}
-				a_i += while_i;
-			}else{
-				code_lengths_array[cl_i] = 16;
-				extra_bits[eb_i] = while_i - 3;
-				a_i += while_i;
-				eb_i++;
 			}
 		}else{
 			code_lengths_array[cl_i] = curr;
 			a_i++;
 		}
-			
+		*codes_array_length	 = cl_i;
 		return code_lengths_array;	
 	}
 }

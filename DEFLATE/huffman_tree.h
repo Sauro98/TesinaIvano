@@ -31,7 +31,7 @@ class Huffman_Tree
         //generates the tree
         static node_f* generate_tree(val_f* frequencies,int length);
         
-        static int* get_code_length_codes(code_d* codes,bool literals,int* extra_bits);
+        static int* get_code_length_codes(code_d* codes,bool literals,int* extra_bits,int* codes_array_length);
 	private:
 		//---ATTRIBUTES---
 		//the original string to encode

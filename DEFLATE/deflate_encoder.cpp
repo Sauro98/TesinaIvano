@@ -35,6 +35,8 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 	
 	std::string compressed = "";
 	
+	// loop through the text to compress and populate the vectors for literals/lenghts and distancies with the values found
+	
 	#if DEBUG > 0
 		println("START ENCODING");
 	#endif
@@ -54,6 +56,7 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 	int l_length = 0;
 	int d_length = 0;
 	
+	//gat the frequence for eache value of eache alphabet
 	val_f* l_frequencies = Huffman_Tree::get_value_frequencies(literals_vector,&l_length);	
 	val_f* d_frequencies = Huffman_Tree::get_value_frequencies(distances_vector,&d_length);
 	
@@ -64,19 +67,35 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 		println("Distance "<<d_frequencies[i].value<<" Frequence "<<d_frequencies[i].frequence);
 	}
 	
+	//generate the tree based on the frequencies
 	node_f* l_root = Huffman_Tree::generate_tree(l_frequencies,l_length);
 	node_f* d_root = Huffman_Tree::generate_tree(d_frequencies,d_length);
 	
+	//get the huffman codes for eache value in each alphabet
 	code_d* literal_codes = Huffman_Tree::dynamic_tree_encoding(l_root,l_frequencies,l_length,true);
 	code_d* distance_codes = Huffman_Tree::dynamic_tree_encoding(d_root,d_frequencies,d_length,false);
 	
+	//arrays that will hold the extra bits for each value in each alphabet 
 	int* l_extra_bits = new int[DYNAMIC_LITERALS_ALPHABET_LENGTH];
 	int* d_extra_bits = new int[DYNAMIC_DISTANCES_ALPHABET_LENGTH];
-	int* l_code_lengths = Huffman_Tree::get_code_length_codes(literal_codes,true,l_extra_bits);
-	int* d_code_lengths = Huffman_Tree::get_code_length_codes(distance_codes,false,d_extra_bits);
 	
+	//get the code lengths used in the alphabets as in RFC 1951 hapter 3.2.7
+	int l_code_lengths_length = 0;
+	int d_code_lengths_length = 0;
+	int* l_code_lengths = Huffman_Tree::get_code_length_codes(literal_codes,true,l_extra_bits,&l_code_lengths_length);
+	int* d_code_lengths = Huffman_Tree::get_code_length_codes(distance_codes,false,d_extra_bits,&d_code_lengths_length);
 	
+	//now i have to combine the two code lengths arrays and generate the frequencies array
+	//then generate the tree and get the codes that should be three bits each
 	
+	int tot_code_lengths[l_code_lengths_length + d_code_lengths_length];
+	
+	for(int l_i= 0; l_i < l_code_lengths_length; l_i++){
+		tot_code_lengths[l_i] = l_code_lengths[l_i];
+	}
+	for(int d_i= 0; d_i < d_code_lengths_length; d_i++){
+		tot_code_lengths[l_code_lengths_length + d_i] = l_code_lengths[d_i];
+	}
 	
 	/*lz77_encoder.reset();
 	

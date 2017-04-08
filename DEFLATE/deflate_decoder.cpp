@@ -54,7 +54,7 @@ std::string Deflate_decoder::decode(){
 	#if DEBUG > 1
 		for(int a = 0; a < original.length();a++){
 	            for(int b = 0; b < 8;b++){
-	                    print(read_bits(original,&current_byte,&current_bit,1));
+	                    print(read_bits(&current_byte,&current_bit,1));
 	            }
 	            println("");
 	    }
@@ -64,8 +64,8 @@ std::string Deflate_decoder::decode(){
 	
 	int bfinal = 0;
 	do{
-        bfinal = read_bits(original,&current_byte,&current_bit,1);
-		int btype = read_bits(original,&current_byte,&current_bit,2);
+        bfinal = read_bits(&current_byte,&current_bit,1);
+		int btype = read_bits(&current_byte,&current_bit,2);
 		#if DEBUG > 0
 			debug_result << "BTYPE: ";
 			debug_result << btype;
@@ -74,15 +74,15 @@ std::string Deflate_decoder::decode(){
 		#endif
 		if(btype == BTYPE00){
             while(current_bit != 8){
-                read_bits(original,&current_byte,&current_bit,1);
+                read_bits(&current_byte,&current_bit,1);
             }
-            int16_t length = read_bits(original,&current_byte,&current_bit,16,false);
-            int16_t nlength = read_bits(original,&current_byte,&current_bit,16,false);
+            int16_t length = read_bits(&current_byte,&current_bit,16,false);
+            int16_t nlength = read_bits(&current_byte,&current_bit,16,false);
             int16_t nl_test = length ^ 65535;
             if(nlength == nl_test){
                 println("valid");
                 for(int a = 0;a < length;a++){
-                    output += (char)read_bits(original,&current_byte,&current_bit,8);        
+                    output += (char)read_bits(&current_byte,&current_bit,8);        
                 }
             }     
 			
@@ -94,7 +94,7 @@ std::string Deflate_decoder::decode(){
 			#endif
 			int decoded_value = 0;
 			do{
-				decoded_value = get_next_static_value(original,&current_byte,&current_bit);
+				decoded_value = get_next_static_value(&current_byte,&current_bit);
 				if(decoded_value < 256){
 					#if DEBUG > 0
 						if(!lastwasliteral)
@@ -107,7 +107,7 @@ std::string Deflate_decoder::decode(){
 					int length = get_length_from_code(decoded_value);
 					int e_b = 0;
 					get_static_length_extra_bits(length,&e_b);
-					int extra_bits = read_bits(original,&current_byte,&current_bit,e_b);
+					int extra_bits = read_bits(&current_byte,&current_bit,e_b);
 					length += extra_bits;
 					#if DEBUG > 0
 						if(lastwasliteral)
@@ -119,11 +119,11 @@ std::string Deflate_decoder::decode(){
 					
 					//DISTANCES DO NOT HAVE TO BE READ IN REVERSE ORDER SO ADD TRUE WHEN READING A DISTANCE WITH read_bits
 					
-					int distance_code = read_bits(original,&current_byte,&current_bit,5,true);
+					int distance_code = read_bits(&current_byte,&current_bit,5,true);
 					int distance = get_distance_from_code(distance_code);
 					e_b = 0;
 					get_static_distance_extra_bits(distance,&e_b);
-					extra_bits = read_bits(original,&current_byte,&current_bit,e_b,false);
+					extra_bits = read_bits(&current_byte,&current_bit,e_b,false);
 					distance += extra_bits;
 					
 					#if DEBUG > 0
@@ -174,10 +174,10 @@ std::string Deflate_decoder::decode(){
 	return output;
 }
 
-int Deflate_decoder::get_next_static_value(std::string feed,long*current_char,int* current_bit){
+int Deflate_decoder::get_next_static_value(long*current_char,int* current_bit){
 	s_node_f* curr_node = static_root;
 	while(curr_node->value == -1){
-		int movement = read_bits(feed,current_char,current_bit,1);
+		int movement = read_bits(current_char,current_bit,1);
 		//print(movement);
 		if(movement == 0)
 			curr_node = curr_node->left_child;
@@ -313,14 +313,14 @@ int Deflate_decoder::get_length_from_code(int code){
 	return 0;
 }
 
-unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int* current_bit,int bits_count,bool reversed){
+unsigned int Deflate_decoder::read_bits(long* current_char,int* current_bit,int bits_count,bool reversed){
 	unsigned int to_return = 0;
-	char curr_char = feed.at(*current_char);
+	char curr_char = original.at(*current_char);
 	for(int read_bit = 0;read_bit < bits_count;read_bit++){
 		if((*current_bit) == 8){
 			(*current_bit) = 0;
 			(*current_char)++;
-			curr_char = feed.at(*current_char);
+			curr_char = original.at(*current_char);
 		}
 		unsigned char bit_to_add = (unsigned char)(curr_char << (7 - (*current_bit))) >> 7;
 		if(!reversed)
@@ -332,7 +332,7 @@ unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int*
 	return to_return;
 }
 
-unsigned int Deflate_decoder::read_bits(std::string feed,long* current_char,int* current_bit,int bits_count){
-	return read_bits(feed,current_char,current_bit,bits_count,false);
+unsigned int Deflate_decoder::read_bits(long* current_char,int* current_bit,int bits_count){
+	return read_bits(current_char,current_bit,bits_count,false);
 }
 
