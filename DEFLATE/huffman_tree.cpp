@@ -109,9 +109,9 @@ node_f* Huffman_Tree::generate_tree(val_f* frequencies,int length){
          tree_queue.enqueue(parent);
      }while(tree_queue.get_length() + symbols_queue.get_length() > 1);
      node_f* root_node = tree_queue.dequeue();
-     #if DEBUG > 1
-     	print_LVR_tree(root_node,"");
-     #endif
+     //#if DEBUG > 1
+     //	print_LVR_tree(root_node,"");
+     //#endif
      return root_node;
 }
 
@@ -136,8 +136,15 @@ std::string Huffman_Tree::get_char_value(node_f* start,long to_find){
 	}	
 }
 
-code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,bool literals){
-	int alphabet_length = (literals)?DYNAMIC_LITERALS_ALPHABET_LENGTH:DYNAMIC_DISTANCES_ALPHABET_LENGTH;
+code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,int alphabet_type){
+	int alphabet_length = 0;
+	if(alphabet_type == AT_LITERALS) 
+		alphabet_length = DYNAMIC_LITERALS_ALPHABET_LENGTH;
+	else if (alphabet_type == AT_DISTANCIES)
+		alphabet_length = DYNAMIC_DISTANCES_ALPHABET_LENGTH;
+	else
+		alphabet_length = DYNAMIC_CODES_ALPHABET_LENGTH;
+	
     val_d dictionary[f_length]; //as RFC 1951
 	//FIRST I GET THE ORIGINAL HUFFMAN PREFIX AND DETERMINE THE GRATER CODE LENGTH
 	int MAX_BITS = 0;	
@@ -151,9 +158,6 @@ code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies
 	}
     //order dictionary by symbol
     order_dictionary(dictionary,f_length);
-	/*for(int i=0;i<f_length;i++){
-		println(dictionary[i].symbol<<" "<<(int)dictionary[i].symbol);
-	}*/
    	//THEN I GET THE MINIMUM VALUE OF THE PREFIX FOR EACH CODE LENGTH; MORE SPECIFICATIONS AT https://tools.ietf.org/html/rfc1951
 	    //if maximum prefix length is 4 I need a array of length 5 to store the 4 bits values count
 	    MAX_BITS++;
@@ -165,7 +169,6 @@ code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies
 	    for(int c_ai = 0; c_ai < alphabet_length; c_ai++){
            if(d_i < f_length && c_ai == (int)dictionary[d_i].symbol){
 	    		int code_length = dictionary[d_i].value.length();
-	    		println(code_length);
 				deflate_dictionary[c_ai] = code_d(0,code_length,c_ai);
 				d_i++;
 	    	}else{
@@ -247,14 +250,14 @@ int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_
 		long curr = codes[a_i].code_length;
 		if(a_i != alphabet_length-1 && curr == codes[a_i + 1].code_length){
 			int while_i = 0;
-			int max_limit = (curr == 0)?139:7;
-			
+			int max_limit = (curr == 0)?138:8;
+			int min_limit = (curr == 0)?3:4;
 			while(a_i + while_i < alphabet_length && while_i < max_limit && curr == codes[a_i + while_i].code_length)
 				while_i ++;
 				
-			while_i--;
+			//while_i--;
 				
-			if(while_i < 3){
+			if(while_i < min_limit){
 				code_lengths_array[cl_i] = curr;
 				a_i++;
 			}else{
@@ -263,16 +266,17 @@ int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_
 					if(while_i < 11){
 						code_lengths_array[cl_i] = 17;
 						extra_bits[eb_i] = while_i - 3;
-						eb_i++;
 					}else{
 						code_lengths_array[cl_i] = 18;
 						extra_bits[eb_i] = while_i - 11;
-						eb_i++;
 					}
+					eb_i++;
 					a_i += while_i;
 				}else{
+					code_lengths_array[cl_i] = curr;
+					cl_i++;
 					code_lengths_array[cl_i] = 16;
-					extra_bits[eb_i] = while_i - 3;
+					extra_bits[eb_i] = while_i - 4;
 					a_i += while_i;
 					eb_i++;
 				}
@@ -281,10 +285,12 @@ int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_
 			code_lengths_array[cl_i] = curr;
 			a_i++;
 		}
-		*codes_array_length	 = cl_i;
-		return code_lengths_array;	
 	}
+	//println("cl_i "<<cl_i);
+	*codes_array_length	 = cl_i;
+	return code_lengths_array;	
 }
+
 
 
 

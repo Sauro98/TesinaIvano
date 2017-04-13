@@ -34,6 +34,7 @@ class Deflate_encoder
 		void print_reversed_binary_literal(int literal,int length);
 		
 		void add_code_to_string(long code,int length);
+		void add_code_to_string(long code,int length,bool reversed);
 		
 		//static tree codes generation functions
 			//LITERALS AND LENGTHS

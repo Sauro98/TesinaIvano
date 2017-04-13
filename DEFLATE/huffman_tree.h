@@ -19,7 +19,7 @@ class Huffman_Tree
 		// class destructor
 		~Huffman_Tree();
 		// encoding function with RFC 1951 guidelies
-		static code_d* dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,bool literals);
+		static code_d* dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,int alphabet_type);
 		// decoding function with RFC 1951 guidelies
 		std::string static_tree_decoding(int* lengths,std::string encoded);
 		

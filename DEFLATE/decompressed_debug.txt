@@ -1,2 +1,2 @@
-BTYPE: 3
+BTYPE: 2
 BFINAL: 1

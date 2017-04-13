@@ -25,8 +25,12 @@
 
 
 #define DYNAMIC_LITERALS_ALPHABET_LENGTH 286
-#define DYNAMIC_DISTANCES_ALPHABET_LENGTH 32
+#define DYNAMIC_DISTANCES_ALPHABET_LENGTH 30
+#define DYNAMIC_CODES_ALPHABET_LENGTH 19
 
+#define AT_LITERALS 0
+#define AT_DISTANCIES 1
+#define AT_CODES  2
 
 //constants for decoding
 
@@ -116,7 +120,7 @@ typedef struct Huffman_node{
         Huffman_node(Huffman_node* left,Huffman_node* right){
             int f1 = left->c_f.frequence;
             int f2 = right->c_f.frequence;
-            c_f = val_f(0,f1 + f2);
+            c_f = val_f(-1,f1 + f2);
             parent = NULL;
             left_child = left;
             right_child = right;

@@ -9,20 +9,20 @@ int main(int argc, char** argv) {
 	//////////////////////////////////
 	//TODO: Mettere a posto la classe Huffman tree per usarla con i blocchi dinamici
 	
-	/*
+	
 	//LETTURA FILE
 	
-	std::ifstream input( "deflate_decoder.cpp", std::ios::binary );
+	/*std::ifstream input( "deflate_decoder.cpp", std::ios::binary );
     // copies all data into buffer
     std::vector<char> buffer((
             std::istreambuf_iterator<char>(input)), 
             (std::istreambuf_iterator<char>()));
 	
 	std::string orig(buffer.begin(),buffer.end());
-	
 	*/
+	
 	/////////////////////////////////////////////
-	std::string orig = "Hola olaf";
+	std::string orig = "Deflate inflate";
 	Deflate_encoder encoder = Deflate_encoder(orig);
 	std::string compressed = encoder.encode();
 	
@@ -50,6 +50,6 @@ int main(int argc, char** argv) {
 	
 	system("Pause");
 	//system("infgen");
-	system("infgen -r  compressed_text.txt "/*> infgen_debug.txt*/);
+	system("infgen -r -d compressed_text.txt "/*> infgen_debug.txt*/);
 	system("Pause");
 }
