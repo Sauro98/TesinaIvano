@@ -94,6 +94,10 @@ node_f* Huffman_Tree::get_smallest_node_in_queues(Queue* q1,Queue* q2){
 }
 //will generate the prefix tree
 node_f* Huffman_Tree::generate_tree(val_f* frequencies,int length){
+	 if(length == 0){
+	 	println("WARNING: GENERATING TREE OF LENGTH 0");
+	 	return NULL;
+	 }
      Queue symbols_queue = Queue(length);
      Queue tree_queue = Queue(length);
      for(int i=0;i<length;i++){
@@ -137,6 +141,10 @@ std::string Huffman_Tree::get_char_value(node_f* start,long to_find){
 }
 
 code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies,int f_length,int alphabet_type){
+	if(root_node == NULL){
+		println("WARNING: USING EMPTY TREE");
+		return NULL;
+	}
 	int alphabet_length = 0;
 	if(alphabet_type == AT_LITERALS) 
 		alphabet_length = DYNAMIC_LITERALS_ALPHABET_LENGTH;
@@ -242,6 +250,10 @@ code_d* Huffman_Tree::dynamic_tree_encoding(node_f* root_node,val_f* frequencies
 }
 
 int* Huffman_Tree::get_code_length_codes(code_d* codes,bool literals,int* extra_bits,int* codes_array_length){
+	if(codes == NULL){
+		println("WARNING: USING EMPTY CODES ALPHABET");
+		return NULL;
+	}
 	int alphabet_length = (literals)?DYNAMIC_LITERALS_ALPHABET_LENGTH:DYNAMIC_DISTANCES_ALPHABET_LENGTH;
 	int* code_lengths_array = new int[alphabet_length];
 	int cl_i = 0;

@@ -7,7 +7,7 @@
 int main(int argc, char** argv) {
 	
 	//////////////////////////////////
-	//TODO: Mettere a posto la classe Huffman tree per usarla con i blocchi dinamici
+	//TODO: Decodifica dinamica
 	
 	
 	//LETTURA FILE
@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	*/
 	
 	/////////////////////////////////////////////
-	std::string orig = "Deflate inflate";
+	std::string orig = "Deflate inflate on a plate";
 	Deflate_encoder encoder = Deflate_encoder(orig);
 	std::string compressed = encoder.encode();
 	

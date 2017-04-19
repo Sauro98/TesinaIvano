@@ -3,6 +3,8 @@
 std::ostringstream output_builder;
 std::ostringstream debug_builder;
 
+const int Deflate_encoder::hclen_reference[] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
+
 Deflate_encoder::Deflate_encoder(std::string to_compress){
 	original = to_compress;
 	#if DEBUG > 0
@@ -47,10 +49,15 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 		if(result_length == 1){
 			//literal
 			literals_vector.push_back(result[0]);
+			println("\tLiteral");
+			println("\t\t"<<(int) result[0]<<" "<<(char)result[0]<<" - ");
 		}else{
 			//length
 			literals_vector.push_back(get_static_length_code(result[0]));
 			distances_vector.push_back(get_static_distance_code(result[1]));
+			println("\tLength/Distance");
+			print("\t\t"<<result[0]);
+			print("," << result[1] << "\n");
 		}
 	}
 	
@@ -81,18 +88,12 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 	int d_code_lengths_length = 0;
 	int* l_code_lengths = Huffman_Tree::get_code_length_codes(literal_codes,true,l_extra_bits,&l_code_lengths_length);
 	int* d_code_lengths = Huffman_Tree::get_code_length_codes(distance_codes,false,d_extra_bits,&d_code_lengths_length);
-	int ebi = 0;
-	for(int a = 0; a < d_code_lengths_length;a++){
-		print("length "<<d_code_lengths[a]);
-		if(d_code_lengths[a] > 15){
-			println(" extra bits "<<d_extra_bits[ebi]);
-			ebi++;
-		}else
-			println("");
+	
+	if(d_code_lengths_length == 0){
+		d_code_lengths = new int[1];
+		d_code_lengths[0] = 0;
+		d_code_lengths_length = 1;
 	}
-	/*for(int a=0;a< 286;a++){
-		debug_builder<<"CYCLE "<<a+1<<" LENGTH "<<literal_codes[a].code_length<<"\n";
-	}*/
 	
 	//now i have to combine the two code lengths arrays and generate the frequencies array
 	//then generate the tree and get the codes that should be three bits each
@@ -111,10 +112,6 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 	int code_lengths_length = 0;
 	val_f* c_frequencies = Huffman_Tree::get_value_frequencies(tot_code_lengths,&code_lengths_length);
 	
-	/*for(int i = 0;i<code_lengths_length;i++){
-		println("code "<<c_frequencies[i].value<<" Frequence "<<c_frequencies[i].frequence);
-	}*/
-	
 	//generate the code tree based on the frequencies
 	
 	node_f* c_root = Huffman_Tree::generate_tree(c_frequencies,code_lengths_length);
@@ -123,81 +120,116 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 	
 	code_d* codes_codes = Huffman_Tree::dynamic_tree_encoding(c_root,c_frequencies,code_lengths_length,AT_CODES);
 	
-/*	for(int a = 0; a < DYNAMIC_CODES_ALPHABET_LENGTH; a++){
-		println("CODES S "<<codes_codes[a].symbol<<" V "<<codes_codes[a].value<<" L "<<codes_codes[a].code_length);
-	}*/
-	
 	//start generating block
 	
-	//TODO:: change with minimum length
+	int HLIT = 0;
+	for(int last_used_code_index = DYNAMIC_LITERALS_ALPHABET_LENGTH - 1;last_used_code_index > 256;last_used_code_index--){
+		if(literal_codes[last_used_code_index].code_length != 0){
+			HLIT = last_used_code_index + 1;
+			break;
+		}
+	}
 	
+	int HDIST = 0;
+	for(int last_used_code_index = DYNAMIC_DISTANCES_ALPHABET_LENGTH - 1;last_used_code_index > 1;last_used_code_index--){
+		//println("DCL: ["<<last_used_code_index<<"] "<<distance_codes[last_used_code_index].code_length );
+		if(distance_codes[last_used_code_index].code_length != 0){
+			HDIST = last_used_code_index + 1;
+			break;
+		}
+	}
+	
+	int HCLEN = 0;
+	for(int last_used_code_index = DYNAMIC_CODES_ALPHABET_LENGTH - 1;last_used_code_index > 4;last_used_code_index--){
+		//println("CCL: ["<<hclen_reference[last_used_code_index]<<"] "<<codes_codes[hclen_reference[last_used_code_index]].code_length );
+		if(codes_codes[hclen_reference[last_used_code_index]].code_length != 0){
+			HCLEN = last_used_code_index + 1;
+			break;
+		}
+	}
+	
+	//println("HLIT "<<HLIT<<" "<<HLIT-257);
+	//println("HDIST "<<HDIST<<" "<<HDIST-1);
+	//println("HCLEN "<<HCLEN<<" "<<HCLEN-4);
 	//HLIT
-	//(DYNAMIC_LITERALS_ALPHABET_LENGTH - 257
-	add_code_to_string(29,5,true);
+	//DYNAMIC_LITERALS_ALPHABET_LENGTH - 257
+	add_code_to_string(HLIT - 257,5,true);
 	//HDIST
 	//DYNAMIC_DISTANCES_ALPHABET_LENGTH - 1
-	add_code_to_string(29,5,true);
+	add_code_to_string(HDIST - 1,5,true);
 	//HCLEN
 	//DYNAMIC_CODES_ALPHABET_LENGTH - 4
-	add_code_to_string(15,4,true);
+	add_code_to_string(HCLEN - 4,4,true);
+	
 	//HC_CONTENT
-	add_code_to_string(codes_codes[16].code_length,3,true);
-	add_code_to_string(codes_codes[17].code_length,3,true);
-	add_code_to_string(codes_codes[18].code_length,3,true);
-	add_code_to_string(codes_codes[0].code_length,3,true);
-	add_code_to_string(codes_codes[8].code_length,3,true);
-	add_code_to_string(codes_codes[7].code_length,3,true);
-	add_code_to_string(codes_codes[9].code_length,3,true);
-	add_code_to_string(codes_codes[6].code_length,3,true);
-	add_code_to_string(codes_codes[10].code_length,3,true);
-	add_code_to_string(codes_codes[5].code_length,3,true);
-	add_code_to_string(codes_codes[11].code_length,3,true);
-	add_code_to_string(codes_codes[4].code_length,3,true);
-	add_code_to_string(codes_codes[12].code_length,3,true);
-	add_code_to_string(codes_codes[3].code_length,3,true);
-	add_code_to_string(codes_codes[13].code_length,3,true);
-	add_code_to_string(codes_codes[2].code_length,3,true);
-	add_code_to_string(codes_codes[14].code_length,3,true);
-	add_code_to_string(codes_codes[1].code_length,3,true);
-	add_code_to_string(codes_codes[15].code_length,3,true);
+	for(int c_i = 0;c_i < HCLEN;c_i++){
+		add_code_to_string(codes_codes[hclen_reference[c_i]].code_length,3,true);	
+	}
 	
 	//HL_CONTENT
 	int l_extra_bits_index = 0;
+	int hlit_counter = 0;
 	for(int l_i = 0;l_i < l_code_lengths_length; l_i++){
 		code_d curr_code = codes_codes[l_code_lengths[l_i]];
 		add_code_to_string(curr_code.value,curr_code.code_length);
 		int extra_bits_count = 0;
-		if(curr_code.symbol == 16)
+		
+		if(curr_code.symbol == 16){
 			extra_bits_count = 2;
-		else if(curr_code.symbol == 17)
+			hlit_counter += 3 + l_extra_bits[l_extra_bits_index];
+		}else if(curr_code.symbol == 17){
 			extra_bits_count = 3;
-		else if(curr_code.symbol == 18)
+			hlit_counter += 3 + l_extra_bits[l_extra_bits_index];
+		}else if(curr_code.symbol == 18){
 			extra_bits_count = 7;
+			hlit_counter += 11 + l_extra_bits[l_extra_bits_index];
+		}else
+			hlit_counter ++;
+			
 		add_code_to_string(l_extra_bits[l_extra_bits_index],extra_bits_count,true);
+		
 		if(extra_bits_count > 0)
 			l_extra_bits_index++;
 			
-	}
-	//HDIST_CONTENT
-	int d_extra_bits_index = 0;
-	for(int d_i = 0;d_i < d_code_lengths_length; d_i++){
-		code_d curr_code = codes_codes[d_code_lengths[d_i]];
-		add_code_to_string(curr_code.value,curr_code.code_length,false);
-		int extra_bits_count = 0;
-		if(curr_code.symbol == 16)
-			extra_bits_count = 2;
-		else if(curr_code.symbol == 17)
-			extra_bits_count = 3;
-		else if(curr_code.symbol == 18)
-			extra_bits_count = 7;
-		add_code_to_string(d_extra_bits[d_extra_bits_index],extra_bits_count,true);
-		if(extra_bits_count > 0)
-			d_extra_bits_index++;
+		println("HLIT COUNTER "<<hlit_counter);
+		
+		if(hlit_counter >= HLIT)
+			break;
 			
 	}
 	
-	lz77_encoder.reset();
+	//HDIST_CONTENT
+	int d_extra_bits_index = 0;
+	int hdist_counter = 0;
+	for(int d_i = 0;d_i < d_code_lengths_length; d_i++){
+		code_d curr_code = codes_codes[d_code_lengths[d_i]];
+		add_code_to_string(curr_code.value,curr_code.code_length);
+		int extra_bits_count = 0;
+		println("ccS"<<curr_code.symbol);
+		if(curr_code.symbol == 16){
+			extra_bits_count = 2;
+			hdist_counter += 3 + d_extra_bits[d_extra_bits_index];
+		}else if(curr_code.symbol == 17){
+			extra_bits_count = 3;
+			hdist_counter += 3 + d_extra_bits[d_extra_bits_index];
+		}else if(curr_code.symbol == 18){
+			extra_bits_count = 7;
+			hdist_counter += 11 + d_extra_bits[d_extra_bits_index];
+		}else
+			hdist_counter ++;
+		add_code_to_string(d_extra_bits[d_extra_bits_index],extra_bits_count,true);
+		println("eb "<<d_extra_bits[d_extra_bits_index]);
+		if(extra_bits_count > 0)
+			d_extra_bits_index++;
+			
+		println("HDIST COUNTER "<<hdist_counter);
+		
+		if(hdist_counter >= HDIST)
+			break;	
+	}
 	
+	lz77_encoder.reset();
+	println("RESET");
 	while(lz77_encoder.hasMore()){
 		int result_length = 0;
 		long* result = lz77_encoder.getNext(&result_length);
@@ -208,34 +240,45 @@ std::string Deflate_encoder::dynamic_encoding(std::string to_compress){
 			int encoded = literal_codes[literal].value;
 			int encoded_length = literal_codes[literal].code_length;
 			add_code_to_string(encoded,encoded_length);
+			
+			println("\tLiteral");
+			println("\t\t"<<(int) result[0]<<" "<<(char)result[0]<<" - ");
 		}else{
 			//length
-			int length_index = get_static_length_code(result[0]);
-			println("length "<<result[0]);
-			int length = literal_codes[length_index].symbol;
-			println("length_code "<<length);
-			int encoded_length = literal_codes[length_index].value;
-			int encoded_length_length = literal_codes[length_index].code_length;
-			add_code_to_string(encoded_length,encoded_length_length);
-			int length_extra_bits_count = 0;
-			int length_extra_bits = get_static_length_extra_bits(257,&length_extra_bits_count);
-			add_code_to_string(length_extra_bits,length_extra_bits_count,true);
+				int length = result[0];
+				//length value in the deflate static alphabet (like for 3 the value is 257)
+				int static_length_value = get_static_length_code(length);
+				int huffman_length_code = literal_codes[static_length_value].value;
+				int huffman_length_code_length = literal_codes[static_length_value].code_length;
+				add_code_to_string(huffman_length_code,huffman_length_code_length);
+				//extra bits
+				int length_extra_bits_count = 0;
+				int length_extra_bits = get_static_length_extra_bits(length,&length_extra_bits_count);
+				add_code_to_string(length_extra_bits,length_extra_bits_count,true);
 			//distance
-			int distance_index = get_static_distance_code(result[1]);
-			int distance = distance_codes[distance_index].symbol;
-			println("DISTANCE "<<distance);
-			int encoded_distance = distance_codes[distance_index].value;
-			int encoded_distance_length = distance_codes[distance_index].code_length;
-			add_code_to_string(encoded_distance,encoded_distance_length);
-			int distance_extra_bits_count = 0;
-			int distance_extra_bits = get_static_length_extra_bits(4,&distance_extra_bits_count);
-			add_code_to_string(distance_extra_bits,distance_extra_bits_count,true);
+				int distance = result[1];
+				int static_distance_value = get_static_distance_code(distance);
+				int huffman_distance_code = distance_codes[static_distance_value].value;
+				int huffman_distance_code_length = distance_codes[static_distance_value].code_length;
+				add_code_to_string(huffman_distance_code,huffman_distance_code_length);
+				//extra bits
+				int distance_extra_bits_count = 0;
+				int distance_extra_bits = get_static_distance_extra_bits(distance,&distance_extra_bits_count);
+				add_code_to_string(distance_extra_bits,distance_extra_bits_count,true);
+			
+			println("\tLength/Distance");
+			print("\t\t"<<length<<" "<<static_length_value);
+			print(","<<distance<< "\n");
 		}
 	}
 	
 	int encoded_end = literal_codes[256].value;
 	int encoded_end_length = literal_codes[256].code_length;
 	add_code_to_string(encoded_end,encoded_end_length);
+	
+	//if last bit inserted was not the last bit in the byte insert the full last byte
+	if(current_to_add_bit != 0)
+		output_builder << current_to_add;
 	
 	return output_builder.str();
 }

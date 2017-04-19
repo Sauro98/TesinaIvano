@@ -16,6 +16,8 @@ class Deflate_encoder
            
 		long* static_tree;
 		
+		static const int hclen_reference[];
+		
 		std::string original;
 		Deflate_encoder(std::string to_compress);
 		std::string encode();
