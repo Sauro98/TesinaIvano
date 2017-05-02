@@ -4,8 +4,8 @@ Order=6,7,0,3,8,1,2,5,4,9,10,11,12
 [Editor_0]
 Open=1
 Top=0
-CursorCol=32
-CursorRow=12
+CursorCol=22
+CursorRow=45
 TopLine=1
 LeftChar=1
 [Editor_1]
@@ -33,8 +33,8 @@ LeftChar=1
 Open=1
 Top=1
 CursorCol=9
-CursorRow=89
-TopLine=70
+CursorRow=101
+TopLine=55
 LeftChar=1
 [Editor_5]
 Open=1
