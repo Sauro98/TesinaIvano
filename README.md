@@ -14,9 +14,9 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
   <li>LZ77 (original version) working fine</li>
   <li>DEFLATE COMPRESSION:
     <ul>
-    <li>Uncompressed format yet to implement</li>
+    <li>Uncompressed format working fine, tested with infgen</li>
     <li>Static tree format working fine, tested with infgen</li>
-    <li>Dynamic tree format working fine</li>
+    <li>Dynamic tree format working fine, tested with infgen</li>
     </ul>
     <br>
     Compressed blocks formats were tested with <a href = "https://github.com/madler/infgen">infgen</a> 
