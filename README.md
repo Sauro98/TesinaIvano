@@ -23,10 +23,10 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
   </li>
   <li>Optimizations
      <ul>
-     <li>faster lz77 implementation working fine<\li>
-     <li>fixed length Huffman trees: Work in progress<\li>
-     <\ul>
-  <\li>
+     <li>faster lz77 implementation with chained hash tables working fine</li>
+     <li>fixed length Huffman trees: Work in progress</li>
+     </ul>
+  </li>
  </ul>
  </br>
  This project is entirely written in c++
