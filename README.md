@@ -24,7 +24,7 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
   <li>Optimizations
      <ul>
      <li>faster lz77 implementation with chained hash tables working fine</li>
-     <li>fixed length Huffman trees: Work in progress</li>
+     <li>fixed length Huffman trees: Working fine</li>
      </ul>
   </li>
  </ul>
