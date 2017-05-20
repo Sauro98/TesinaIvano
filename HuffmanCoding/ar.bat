@@ -1,1 +1,0 @@
-C:\Program Files (x86)\Dev-Cpp\MinGW64\bin ar libhash.a *.o -q constants.o -q hashtable.o -q linked_list.o
