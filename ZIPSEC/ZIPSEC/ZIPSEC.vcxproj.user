@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>C:\Users\Ivano\Desktop\TesinaIvano\ZIPSEC\ZIPSEC\x64\Release\zipsec.log compress</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>C:\Users\Ivano\Desktop\TesinaIvano\ZIPSEC\ZIPSEC\x64\Release\text.txt compress</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
