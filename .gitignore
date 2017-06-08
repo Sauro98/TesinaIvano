@@ -5,3 +5,17 @@
 *.blend
 *.jpg
 *.o
+*.log
+*.psess
+*.sln
+*.VC
+*.VC.*
+*.vcxproj
+*.vcxproj.*
+*.vspx
+*.obj
+*.pdb
+*.iobj
+*.ipdb
+*.tlog
+*.lastbuildstate
