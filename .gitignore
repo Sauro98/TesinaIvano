@@ -6,6 +6,9 @@
 *.jpg
 *.o
 *.log
+
+# visual studio files
+
 *.psess
 *.sln
 *.VC
