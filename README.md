@@ -22,3 +22,4 @@ I'm trying to implement a ZIP/DEFLATE compressor and decompressor that will allo
 * Sgzip file format working fine
   
  This project is entirely written in c++
+[![Code Triagers Badge](https://www.codetriage.com/sauro98/zipsec/badges/users.svg)](https://www.codetriage.com/sauro98/zipsec)
