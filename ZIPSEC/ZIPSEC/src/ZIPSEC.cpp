@@ -3,12 +3,10 @@
 
 #include <time.h>
 
-#include "stdafx.h"
-#include "libs\deflate\constants.h"
-#include "libs\deflate\deflate_encoder.h"
-#include "libs\deflate\deflate_decoder.h"
-#include "gzip.h"
-#include "sgzip.h"
+#include "libs/deflate/constants.h"
+#include "libs/deflate/deflate_encoder.h"
+#include "src/gzip.h"
+#include "src/sgzip.h"
 
 
 #define INVALID_COMMANDS_ERROR "zipsec-error: invalid arguments, use zipsec help to see the list of valid commands"

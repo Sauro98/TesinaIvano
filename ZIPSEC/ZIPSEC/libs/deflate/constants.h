@@ -6,7 +6,6 @@
 #include <iostream>
 #include <limits>
 #include <stdio.h>
-//#include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <fstream>
@@ -19,8 +18,8 @@
 #define println(x) std::cout<<x<<std::endl
 #define rollback_line() std::cout<<'\r'
 
-#define BYTE 1
-#define KBYTE 1024 * BYTE
+#define Byte 1
+#define KBYTE 1024 * Byte
 #define MBYTE 1024 * KBYTE
 
 #define SEARCH_BUFFER_LENGTH ((32 * KBYTE) - 1)

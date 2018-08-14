@@ -11,7 +11,7 @@ static int* generate_codes_from_lengths(int* lengths, int size,bool hclen);
 static int char_to_uint(char c);
 
 
-static int char_to_uint(char c){
+inline int char_to_uint(char c){
 	if((int) c < 0)
 		return (uint8_t)c;
 	else

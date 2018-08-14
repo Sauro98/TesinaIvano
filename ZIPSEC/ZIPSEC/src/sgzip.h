@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gzip.h"
-#include "libs\des\des_chipher.h"
+#include "src/gzip.h"
+#include "libs/des/des_chipher.h"
 
 #define SGZIP_EXT ".SGZIP"
 #define sgzip_EXT ".sgzip"
@@ -19,7 +19,7 @@ class sgzip : public gzip{
 		void compress_and_crypt(int crypt_mode,std::string key);
 		void crypt(int crypt_mode,std::string key);
 		void do_head(int crypt_mode,bool compressed);
-		void do_body(bool compressed,DES_Chipher* chipher);
+		void do_body(bool compressed,DES_Cipher* chipher);
 		void check_file_name();
 		void write_output(bool crypted);
 		void decode(std::string key);

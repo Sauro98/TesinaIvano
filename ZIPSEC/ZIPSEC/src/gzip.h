@@ -2,9 +2,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "libs\deflate\constants.h"
-#include "libs\deflate\deflate_encoder.h"
-#include "libs\deflate\deflate_decoder.h"
+#include "libs/deflate/constants.h"
+#include "libs/deflate/deflate_encoder.h"
+#include "libs/deflate/deflate_decoder.h"
 
 #define GZIP_EXT ".GZ"
 #define gzip_EXT ".gz"

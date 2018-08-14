@@ -24,7 +24,7 @@ node_f* Huffman_Tree::get_smallest_node_in_queues(Queue* q1,Queue* q2){
     	if(q1->get_length() > 0)
         	return q1->dequeue();
         else
-        	return new node_f((0,0));
+        	return new node_f(val_f(0,0));
     else
         return q2->dequeue();
 }

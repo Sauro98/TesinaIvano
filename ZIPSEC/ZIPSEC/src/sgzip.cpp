@@ -8,14 +8,14 @@ sgzip::~sgzip(){
 }
 
 void sgzip::compress_and_crypt(int crypt_mode, std::string key){
-	DES_Chipher chipher(key,crypt_mode);
+	DES_Cipher chipher(key,crypt_mode);
 	do_head(crypt_mode,true);
 	do_body(true, &chipher);
 
 }
 
 void sgzip::crypt(int crypt_mode, std::string key){
-	DES_Chipher chipher(key, crypt_mode);
+	DES_Cipher chipher(key, crypt_mode);
 	do_head(crypt_mode, false);
 	do_body(false, &chipher);
 }
@@ -57,7 +57,7 @@ void sgzip::do_head(int crypt_mode,bool compressed) {
 }
 
 
-void sgzip::do_body(bool compressed,DES_Chipher* chipher) {
+void sgzip::do_body(bool compressed,DES_Cipher* chipher) {
 	if (compressed) {
 		gzip::do_body();
 		println("Crypting...");
@@ -123,7 +123,7 @@ void sgzip::decode(std::string key){
 		exit(0);
 	}
 
-	DES_Chipher chipher(key, crypt_type);
+	DES_Cipher chipher(key, crypt_type);
 
 	int current_byte = 1;
 
